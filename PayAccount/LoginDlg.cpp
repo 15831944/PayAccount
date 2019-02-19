@@ -85,7 +85,7 @@ DWORD WINAPI InitDlgThread(LPVOID lpParam)
 	{
 		if(g_SockClient.Start(TRUE))
 		{
-			pThis->m_staMsg.SetWindowTextW(L"服务：连接正常");
+			pThis->m_staMsg.SetWindowTextW(L"");
 			Json::Value root;
 			root[CONNECT_CMD]=SOCK_CMD_GET_USER;
 			Json::FastWriter writer;  
@@ -103,24 +103,6 @@ LRESULT CLoginDlg::OnInitDlg(WPARAM wParam, LPARAM lParam)
 {
 	g_SockClient.createWin();
 	CreateThread(NULL,0,InitDlgThread,this,0,NULL);
-
-	//设置回调
-	//g_SockClient.SetCallback(LoginCallback,this);
-
-	//g_SockClient.createWin();
-	//if (g_Globle.InitGloble())
-	//{
-	//	if(g_SockClient.Start(TRUE))
-	//	{
-	//		Json::Value root;
-	//		root[CONNECT_CMD]=SOCK_CMD_GET_USER;
-	//		Json::FastWriter writer;  
-	//		string temp = writer.write(root);
-	//		g_SockClient.SendTo(temp);
-	//	}
-	//	//else
-	//		//OnCancel();
-	//}
 	return TRUE;
 }
 

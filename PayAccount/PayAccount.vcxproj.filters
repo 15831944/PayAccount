@@ -129,6 +129,9 @@
     <ClCompile Include="SetAdressDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="WorkCalDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddBookDlg.h">
@@ -240,6 +243,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SetAdressDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkCalDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

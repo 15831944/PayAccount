@@ -36,6 +36,8 @@
 #define IDD_ADD_PRO                     151
 #define IDD_STAFF_WRITE                 152
 #define IDD_SET_ADRESS                  153
+#define IDD_DIALOG2                     154
+#define IDD_WORKCAL                     154
 #define IDC_STAFF_FIND                  1001
 #define IDC_SIZE                        1001
 #define IDC_STAFF_ADD                   1002
@@ -212,7 +214,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        154
+#define _APS_NEXT_RESOURCE_VALUE        155
 #define _APS_NEXT_COMMAND_VALUE         32801
 #define _APS_NEXT_CONTROL_VALUE         1114
 #define _APS_NEXT_SYMED_VALUE           101

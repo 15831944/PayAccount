@@ -16,6 +16,7 @@
 #include "ProjectMngDlg.h"
 #include "ProcessDlg.h"
 #include "StaffWriteDlg.h"
+#include "WorkCalDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -68,6 +69,7 @@ CPayAccountDlg::CPayAccountDlg(CWnd* pParent /*=NULL*/)
 	m_DetailDlg = NULL;
 	m_DPayDlg = NULL;
 	m_MPayDlg = NULL;
+	m_WorkCalDlg = NULL;
 	m_CloseType = Type_Close;
 	
 	m_bExit = FALSE;
@@ -214,7 +216,6 @@ LRESULT CPayAccountDlg::OnBookUpdate(WPARAM wParam, LPARAM lParam)
 {
 	//通知做工统计和日核算，明细页面刷新数据
 	m_ProcessDlg->OnBnClickedBtnUpdate();
-	m_DPayDlg->OnBnClickedBtnUpdate();
 	m_DetailDlg->OnBnClickedBtnUpdate();
 	return TRUE;
 }
@@ -257,7 +258,8 @@ void CPayAccountDlg::InitTabControl()
 		//m_pStaffWriteDlg = new CStaffWriteDlg;
 		m_ProcessDlg = new CProcessDlg;
 		m_DetailDlg = new CDetailDlg;
-		m_DPayDlg = new CDayCheckDlg;
+		m_WorkCalDlg = new CWorkCalDlg;
+		//m_DPayDlg = new CDayCheckDlg;
 		m_MPayDlg = new CMonthCheckDlg;
 
 		//m_TabCtrl.InsertItem(0,  L"工人操作");
@@ -269,7 +271,8 @@ void CPayAccountDlg::InitTabControl()
 		//m_pStaffWriteDlg->Create(IDD_STAFF_WRITE, &m_TabCtrl);
 		m_ProcessDlg->Create(IDD_PROCESS, &m_TabCtrl);
 		m_DetailDlg->Create(IDD_DETAIL, &m_TabCtrl);
-		m_DPayDlg->Create(IDD_DPAY, &m_TabCtrl);
+		m_WorkCalDlg->Create(IDD_WORKCAL, &m_TabCtrl);
+		//m_DPayDlg->Create(IDD_DPAY, &m_TabCtrl);
 		m_MPayDlg->Create(IDD_MPAY, &m_TabCtrl);
 
 		CRect rectThis;
@@ -288,16 +291,17 @@ void CPayAccountDlg::InitTabControl()
 		rc.bottom -= 50;
 		rc.left += 10;
 		rc.right -= 20;
-		//m_pStaffWriteDlg->MoveWindow(&rc, TRUE);
+
 		m_ProcessDlg->MoveWindow(&rc, TRUE);
 		m_DetailDlg->MoveWindow(&rc, TRUE);
-		m_DPayDlg->MoveWindow(&rc, TRUE);
+		m_WorkCalDlg->MoveWindow(&rc, TRUE);
+		//m_DPayDlg->MoveWindow(&rc, TRUE);
 		m_MPayDlg->MoveWindow(&rc, TRUE);
 
-		//m_TabDlgs[0] = m_pStaffWriteDlg;
 		m_TabDlgs[0] = m_ProcessDlg;
 		m_TabDlgs[1] = m_DetailDlg;
-		m_TabDlgs[2] = m_DPayDlg;
+		m_TabDlgs[2] = m_WorkCalDlg;
+		//m_TabDlgs[2] = m_DPayDlg;
 		m_TabDlgs[3] = m_MPayDlg;
 
 		m_TabDlgs[0]->ShowWindow(SW_SHOW);
@@ -421,8 +425,10 @@ BOOL CPayAccountDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			m_TabDlgs[m_TabSelIndex]->UpdateDlg();
 			break;
 		}
-	case ID_LOGOFF:
+	case ID_LOGOFF://注销
 		{
+			g_Globle.m_strUserName = L"";
+			g_Globle.m_strUserPwd = L"";
 			m_CloseType = Type_LogOff;
 			OnCancel();
 			break;
@@ -495,6 +501,11 @@ void CPayAccountDlg::OnDestroy()
 	{
 		delete m_DPayDlg;
 		m_DPayDlg = NULL;
+	}
+	if (m_WorkCalDlg)
+	{
+		delete m_WorkCalDlg;
+		m_WorkCalDlg = NULL;
 	}
 	if (m_ProcessDlg)
 	{

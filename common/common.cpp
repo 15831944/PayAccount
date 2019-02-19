@@ -267,6 +267,7 @@ const char CMD_DETAILMSG[EM_DETAIL_MSG_MAX][CMD_CHAR_MAX]=
 const char CMD_GETDAYPAY[EM_GET_DAYPAY_MAX][CMD_CHAR_MAX]=
 {
 	"staffid",
+	"staffname",
 	"date"
 };
 

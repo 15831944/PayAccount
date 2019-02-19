@@ -23,6 +23,7 @@ class CProcessDlg;
 class CDetailDlg;
 class CMonthCheckDlg;
 class CDayCheckDlg;
+class CWorkCalDlg;
 class CPayAccountDlg : public CDialog
 {
 // ππ‘Ï
@@ -63,6 +64,7 @@ public:
 	CDetailDlg*      m_DetailDlg;
 	CDayCheckDlg*    m_DPayDlg;
 	CMonthCheckDlg*  m_MPayDlg;
+	CWorkCalDlg*     m_WorkCalDlg;
 	CPayAccountDlg*  m_TabDlgs[5];
 	int              m_TabSelIndex;
 	CloseType        m_CloseType;

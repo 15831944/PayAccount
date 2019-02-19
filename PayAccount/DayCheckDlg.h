@@ -10,7 +10,8 @@
 //日核算
 #define  WM_DAYCHECK_CALL WM_USER+502
 
-class CDayCheckDlg : public CPayAccountDlg
+class CWorkCalDlg;
+class CDayCheckDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CDayCheckDlg)
 
@@ -28,8 +29,12 @@ protected:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	DECLARE_MESSAGE_MAP()
 public:
+	CString m_strDate;
+	CString m_strStaffID;
+	CString m_strStaffName;
+	CWorkCalDlg* pDlg;
+
 	CString m_LastStaffID;
-	vector<STAFF_STU> m_vet;
 	vector<DAYPAY> m_vCal;
 	vector<PROJECT_STU> m_vProjects;
 	vector<BOOK_STU> m_vBooks;
@@ -42,31 +47,22 @@ public:
 	void SetAllPayCtrl(DAYPAY_TYPE type,double money);
 	void SetListCtrlValue();
 	virtual void UpdateDlg();
-	void SetComboStaffValue();
+	void SetNotifyWnd(CWorkCalDlg* pdata,CString strDate);
 
 	CEditSet m_edit_per;
 	CEditSet m_edit_day;
 	CStatic m_GroupCtrl;
 	afx_msg void OnBnClickedBtnSave();
-	afx_msg void OnMcnSelchangeTimectrl(NMHDR *pNMHDR, LRESULT *pResult);
-	CComboBox m_comboStaff;
-	afx_msg void OnCbnSelchangeComboUser();
 	afx_msg void OnEnChangeEditPer();
 	afx_msg void OnEnChangeEditDay();
-	CDateTimeCtrl m_DateTCtrl;
-	afx_msg void OnDtnDatetimechangeDatetimepicker1(NMHDR *pNMHDR, LRESULT *pResult);
 	CStatic m_staticAll;
 	CFont m_font;
-	afx_msg void OnBnClickedBtnUpdate();
 
 	//获取简单图书信息
 	void SendToGetBook();
 	void GetBook(Json::Value root);
 	void SendToGetProject();
 	void GetProject(Json::Value root);
-	//获取简单职工信息
-	void SendToGetStaff();
-	void GetStaff(Json::Value root);
 	void SendToGetDayPay();
 	void GetDayPay(Json::Value root);
 	void SendToDelDayPay(CString strStaffID,CString strDate);

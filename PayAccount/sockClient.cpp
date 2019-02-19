@@ -92,13 +92,13 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_OUTMAXBUFF:
 		{
-			//MessageBox(L"报文超过最大接收长度!",L"错误");
+			MessageBox(L"报文超过最大接收长度!",L"错误");
 			Start();
 			break;
 		}
 	case SOCK_ERROR_OUTMAX_RECVLEN:
 		{
-			//MessageBox(L"实际接收长度超出定义范围!",L"错误");
+			MessageBox(L"实际接收长度超出定义范围!",L"错误");
 			Start();
 			break;
 		}
@@ -197,6 +197,19 @@ bool SockClient::Start(BOOL bShowMsgBox)
 	{
 		return true;
 	}
+	else
+	{
+		if (m_HeardHandle != INVALID_HANDLE_VALUE)
+		{
+			WaitForSingleObject(m_HeardHandle,INFINITE);
+			m_HeardHandle = INVALID_HANDLE_VALUE;
+		}
+		if (m_RecvHandle != INVALID_HANDLE_VALUE)
+		{
+			WaitForSingleObject(m_RecvHandle,INFINITE);
+			m_RecvHandle = INVALID_HANDLE_VALUE;
+		}
+	}
 
 	if (ConnectSer(bShowMsgBox))
 	{
@@ -279,7 +292,16 @@ int SockClient::SendTo(string strData,long len)
 	else if (AllLen > MAXBUFFLEN)
 	{
 		MessageBox(L"请求失败，原因：发送数据长度已超出最大定义长度！",L"错误");
-		 return 0;
+		return 0;
+	}
+	else
+	{
+		byte start = sendBuf[0];
+		if (start != MSG_BEGN)
+		{
+			MessageBox(L"报文头错误,终止发送请求！");
+			return 0;
+		}
 	}
 
 	DWORD NumberOfBytesSent = 0;
@@ -345,7 +367,7 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 	long   revLen =0;
 	while (pThis->m_bConnect)
 	{
-		dwIndex = WSAWaitForMultipleEvents(1,&Event,FALSE,2000,FALSE);
+		dwIndex = WSAWaitForMultipleEvents(1,&Event,FALSE,1000,FALSE);
 		dwIndex = dwIndex - WAIT_OBJECT_0;
 		if (dwIndex==WSA_WAIT_TIMEOUT||dwIndex==WSA_WAIT_FAILED)
 		{
@@ -383,7 +405,11 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 					break;
 				}
 				else if (revLen<5)
+				{
+					Buffers.buf+=NumberOfBytesRecvd;
+					Buffers.len = 5-revLen;//数据+0x03
 					continue;
+				}
 				else
 				{
 					char LenBuff[4] = {0};
@@ -430,10 +456,12 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			//此处进行消息处理,根据长度获取到数据buffer
 			char* data=new char[dataLen];
 			memcpy(data,szRequest+5,dataLen);
-			pThis->DoRun(data);
+
 			revLen = 0;
 			Buffers.len = 5;
 			memset(szRequest,0,maxlen);
+
+			pThis->DoRun(data);
 			delete[] data;
 		}
 
@@ -444,6 +472,7 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 		delete[] szRequest;
 	}
 
+	WSACloseEvent(Event);
 	closesocket(g_CliSock);
 	g_CliSock=INVALID_SOCKET;
 	WSACleanup();

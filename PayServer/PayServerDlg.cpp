@@ -805,6 +805,11 @@ void CPayServerDlg::DoRun(string strData,Json::Value& js,Node* pnode)
 				bRet=theApp.m_dbData->_GetDayPay(js,strStaffID,strDate);
 			}
 			break;
+		case SOCK_CMD_GET_DAYPAY_LIST:
+			{
+				bRet=theApp.m_dbData->_GetDayPayList(js,root);
+			}
+			break;
 		case SOCK_CMD_GET_MPAY:
 			{
 				bRet=theApp.m_dbData->_GetMouthPay(js,root);
@@ -1081,7 +1086,7 @@ DWORD WINAPI ClientThread(LPVOID lpParam)
 				revLen = 0;
 				Buffers.len = 5;
 				memset(szRequest,0,maxlen);
-				WSAResetEvent(Event);
+				g_PaySerDlg->AddString(L"SOCKET_ERROR in,continue...");
 				continue;
 			}
 			else
@@ -1091,12 +1096,13 @@ DWORD WINAPI ClientThread(LPVOID lpParam)
 				byte start = szRequest[0];
 				if (start != MSG_BEGN)
 				{
-					str.Format(L"报文头错误,强制关闭连接！");
-					g_PaySerDlg->AddString(str);
+					g_PaySerDlg->AddString(L"报文头错误,强制关闭连接！");
 					break;
 				}
 				else if (revLen<5)//报文头还没接收完
 				{
+					Buffers.buf+=NumberOfBytesRecvd;
+					Buffers.len = 5-revLen;//数据+0x03
 					continue;
 				}
 				else
@@ -1127,6 +1133,7 @@ DWORD WINAPI ClientThread(LPVOID lpParam)
 					{
 						Buffers.buf=Buffers.buf-revLen+NumberOfBytesRecvd;
 						Buffers.len=5;
+						WSAResetEvent(Event);
 						if (szRequest[revLen-1] != MSG_END)
 						{
 							str.Format(L"报文尾错误，服务将强制断开该连接！byte：%d",szRequest[revLen-1]);
@@ -1147,11 +1154,13 @@ DWORD WINAPI ClientThread(LPVOID lpParam)
 			char* data=new char[dataLen+1];
 			memset(data,0,dataLen+1);
 			memcpy(data,szRequest+5,dataLen);
-			g_PaySerDlg->DoRun(data,js,pnode);
-			g_PaySerDlg->SendTo(sClient,js);
+
 			revLen = 0;
 			Buffers.len = 5;
 			memset(szRequest,0,maxlen);
+
+			g_PaySerDlg->DoRun(data,js,pnode);
+			g_PaySerDlg->SendTo(sClient,js);
 			delete[] data;
 		}
 		else if(NetWorkEvent.lNetworkEvents & FD_CLOSE)

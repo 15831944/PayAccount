@@ -1,5 +1,66 @@
-﻿生成启动时间为 2019/2/15 16:33:53。
+﻿生成启动时间为 2019/2/19 16:54:19。
+     1>项目“D:\PayAccountPro\PayAccount\PayAccount\PayAccount.vcxproj”在节点 2 上(build 个目标)。
+     1>InitializeBuildStatus:
+         正在创建“Release\PayAccount.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         所有输出均为最新。
+         d:\VS2010\VC\bin\CL.exe /c /Icommon /ID:\PayAccountPro\PayAccount\PayAccount\jsonCpp\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\PayAccount.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt sockClient.cpp
+         sockClient.cpp
+     1>sockClient.cpp(175): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>sockClient.cpp(324): warning C4018: “<”: 有符号/无符号不匹配
+       ResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D NDEBUG /D _UNICODE /D UNICODE /l"0x0804" /IRelease\ /nologo /fo"Release\PayAccount.res" PayAccount.rc 
+       Link:
+         d:\VS2010\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\PayAccountPro\PayAccount\Release\PayAccount.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:D:\PayAccountPro\PayAccount\PayAccount\/lib /LIBPATH:D:\PayAccountPro\PayAccount\PayAccount\jsonCpp\lib /MANIFEST /ManifestFile:"Release\PayAccount.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\PayAccountPro\PayAccount\Release\PayAccount.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\PayAccountPro\PayAccount\Release\PayAccount.lib" /MACHINE:X86 Release\PayAccount.res
+         Release\common.obj
+         Release\EditSet.obj
+         Release\globle.obj
+         Release\AddBookDlg.obj
+         Release\AddProDlg.obj
+         Release\AddStaffDlg.obj
+         Release\AddUserDlg.obj
+         Release\BookMngDlg.obj
+         Release\DaiNumberPayDlg.obj
+         Release\Detail_ListCtrl.obj
+         Release\DianYePayDlg.obj
+         Release\LockDlg.obj
+         Release\LoginDlg.obj
+         Release\MdfPwdDlg.obj
+         Release\MyListCtrl.obj
+         Release\OtherProDlg.obj
+         Release\OtherProListCtrl.obj
+         Release\PayAccount.obj
+         Release\PayAccountDlg.obj
+         Release\MonthCheckDlg.obj
+         Release\DetailDlg.obj
+         Release\ProjectMngDlg.obj
+         Release\ProMngListCtrl.obj
+         Release\SetAdressDlg.obj
+         Release\SetPayDlg.obj
+         Release\sockClient.obj
+         Release\StaffMngDlg.obj
+         Release\StaffWriteDlg.obj
+         Release\stdafx.obj
+         Release\Test.obj
+         Release\UserMngDlg.obj
+         Release\DayCheckDlg.obj
+         Release\ProcessDlg.obj
+         Release\WorkCalDlg.obj
+         Release\ZheYeDlg.obj
+         正在生成代码
+         已完成代码的生成
+     1>json_vc71_libmt.lib(json_reader.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“json_vc71_libmt.lib(json_reader.obj)”或在“D:\PayAccountPro\PayAccount\Release\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>json_vc71_libmt.lib(json_value.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“json_vc71_libmt.lib(json_value.obj)”或在“D:\PayAccountPro\PayAccount\Release\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+     1>json_vc71_libmt.lib(json_writer.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“json_vc71_libmt.lib(json_writer.obj)”或在“D:\PayAccountPro\PayAccount\Release\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+         PayAccount.vcxproj -> D:\PayAccountPro\PayAccount\Release\PayAccount.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"D:\PayAccountPro\PayAccount\Release\PayAccount.exe;#1" /manifest Release\PayAccount.exe.intermediate.manifest d:\VS2010\VC\Include\Manifest\dpiaware.manifest
+       FinalizeBuildStatus:
+         正在删除文件“Release\PayAccount.unsuccessfulbuild”。
+         正在对“Release\PayAccount.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“D:\PayAccountPro\PayAccount\PayAccount\PayAccount.vcxproj”(build 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:00.00
+已用时间 00:00:06.04

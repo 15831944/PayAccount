@@ -5,6 +5,7 @@
 #include "PayAccount.h"
 #include "DayCheckDlg.h"
 #include "afxdialogex.h"
+#include "WorkCalDlg.h"
 
 
 // CDayCheckDlg 对话框
@@ -59,17 +60,6 @@ LRESULT CDayCheckDlg::OnCallBack(WPARAM wParam, LPARAM lParam)
 			else
 			{
 				GetProject(root);
-				SendToGetStaff();
-			}
-		}
-		break;
-	case SOCK_CMD_GET_SAMPLE_STAFF:
-		{
-			if (ret == NET_CMD_FAIL)
-				MessageBox(L"获取职工信息失败！",L"错误");
-			else
-			{
-				GetStaff(root);
 				SendToGetDayPay();
 			}
 		}
@@ -101,6 +91,7 @@ LRESULT CDayCheckDlg::OnCallBack(WPARAM wParam, LPARAM lParam)
 			else
 			{
 				MessageBox(L"保存成功！",L"");
+				OnOK();
 			}	
 		}
 		break;
@@ -119,10 +110,11 @@ LRESULT CDayCheckDlg::OnCallBack(WPARAM wParam, LPARAM lParam)
 }
 
 CDayCheckDlg::CDayCheckDlg(CWnd* pParent /*=NULL*/)
-: CPayAccountDlg(pParent)
+: CDialog(CDayCheckDlg::IDD, pParent)
 {
 	m_edit_per.m_type = EDIT_TYPE_FLOAT;
 	m_edit_day.m_type = EDIT_TYPE_FLOAT;
+	pDlg = NULL;
 }
 
 CDayCheckDlg::~CDayCheckDlg()
@@ -132,7 +124,7 @@ CDayCheckDlg::~CDayCheckDlg()
 
 HBRUSH CDayCheckDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	HBRUSH hbr = CPayAccountDlg::OnCtlColor(pDC, pWnd, nCtlColor);
+	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
 	// TODO:  在此更改 DC 的任何特性
 	if (pWnd->GetDlgCtrlID()==IDC_STA)
@@ -148,24 +140,19 @@ void CDayCheckDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, m_ListCtrl);
 	DDX_Control(pDX, IDC_GROUP, m_GroupCtrl);
-	DDX_Control(pDX, IDC_COMBO_USER, m_comboStaff);
 	DDX_Control(pDX, IDC_EDIT_PER, m_edit_per);
 	DDX_Control(pDX, IDC_EDIT_DAY, m_edit_day);
-	DDX_Control(pDX, IDC_DATETIMEPICKER1, m_DateTCtrl);
 	DDX_Control(pDX, IDC_ALL, m_staticAll);
 	DDX_Control(pDX, IDC_STA, m_ts);
 }
 
 
-BEGIN_MESSAGE_MAP(CDayCheckDlg, CPayAccountDlg)
+BEGIN_MESSAGE_MAP(CDayCheckDlg, CDialog)
 	ON_BN_CLICKED(IDC_BTN_ADD, &CDayCheckDlg::OnBnClickedBtnAdd)
 	ON_BN_CLICKED(IDC_BTN_DEL, &CDayCheckDlg::OnBnClickedBtnDel)
 	ON_BN_CLICKED(IDC_BTN_SAVE, &CDayCheckDlg::OnBnClickedBtnSave)
-	ON_CBN_SELCHANGE(IDC_COMBO_USER, &CDayCheckDlg::OnCbnSelchangeComboUser)
 	ON_EN_CHANGE(IDC_EDIT_PER, &CDayCheckDlg::OnEnChangeEditPer)
 	ON_EN_CHANGE(IDC_EDIT_DAY, &CDayCheckDlg::OnEnChangeEditDay)
-	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIMEPICKER1, &CDayCheckDlg::OnDtnDatetimechangeDatetimepicker1)
-	ON_BN_CLICKED(IDC_BTN_UPDATE, &CDayCheckDlg::OnBnClickedBtnUpdate)
 	ON_MESSAGE(WM_DAYCHECK_CALL, &CDayCheckDlg::OnCallBack)
 	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
@@ -181,11 +168,8 @@ BOOL CDayCheckDlg::OnInitDialog()
 	m_staticAll.SetFont(&m_font);
 
 	//初始化group控件文字信息
-	CTime t;
-	m_DateTCtrl.GetTime(t);
-	CString strDate = t.Format(L"%Y/%m/%d");
 	CString str;
-	str.Format(L"%s 核算", strDate);
+	str.Format(L"%s 核算", m_strDate);
 	m_GroupCtrl.SetWindowText(str);
 
 	//初始化列表控件
@@ -195,7 +179,21 @@ BOOL CDayCheckDlg::OnInitDialog()
 	//列表控件赋值
 	SetListCtrlValue();
 	
+	STAFF_STU stu = *(STAFF_STU*)pDlg->m_ListCtrl.GetItemData(pDlg->m_nItem);
+	m_strStaffID = stu.strStaffID;
+	m_strStaffName = stu.strname;
+
+	SetWindowText(m_strStaffName);
+
+	UpdateDlg();
+
 	return TRUE;
+}
+
+void CDayCheckDlg::SetNotifyWnd(CWorkCalDlg* pdata,CString strDate)
+{
+	pDlg = pdata;
+	m_strDate = strDate;
 }
 
 void CDayCheckDlg::SendToGetBook()
@@ -223,36 +221,13 @@ void CDayCheckDlg::SendToGetProject()
 	}
 }
 
-void CDayCheckDlg::SendToGetStaff()
-{
-	USES_CONVERSION;
-	Json::Value root;
-	root[CONNECT_CMD]=SOCK_CMD_GET_SAMPLE_STAFF;
-	Json::FastWriter writer;  
-	string temp = writer.write(root);
-	g_SockClient.SendTo(temp);
-}
-
 void CDayCheckDlg::SendToGetDayPay()
 {
-	//1.获取日期
-	CTime t;
-	m_DateTCtrl.GetTime(t);
-	CString strDate = t.Format(L"%Y/%m/%d");
-
-	//2.获取职工身份证号
-	CString strName =  L"", strStaffID = L"";
-	int ndex = m_comboStaff.GetCurSel();
-	if (ndex<0)
-		return;
-	else
-		strStaffID = *((CString*)m_comboStaff.GetItemData(ndex));
-
 	USES_CONVERSION;
 	Json::Value root;
 	root[CONNECT_CMD]=SOCK_CMD_GET_DAYPAY;
-	root[CMD_GETDAYPAY[EM_GET_DAYPAY_STAFFID]]=T2A(strStaffID);
-	root[CMD_GETDAYPAY[EM_GET_DAYPAY_DATE]]=T2A(strDate);
+	root[CMD_GETDAYPAY[EM_GET_DAYPAY_STAFFID]]=T2A(m_strStaffID);
+	root[CMD_GETDAYPAY[EM_GET_DAYPAY_DATE]]=T2A(m_strDate);
 	Json::FastWriter writer;  
 	string temp = writer.write(root);
 	g_SockClient.SendTo(temp);
@@ -286,25 +261,11 @@ void CDayCheckDlg::SendToGetOnePay(CString strStaffID,int proID,CString strBookI
 
 void CDayCheckDlg::SendToSaveDayPay()
 {
-	CTime t;
-	m_DateTCtrl.GetTime(t);
-	CString strDate = t.Format(L"%Y/%m/%d");
-
-	CString strStaffID= L"";
-	int ndex = m_comboStaff.GetCurSel();
-	if (ndex < 0)
-	{
-		MessageBox(L"请先添加员工信息",L"提示");
-		return;
-	}
-	else
-		strStaffID = *((CString*)m_comboStaff.GetItemData(ndex));
-
 	USES_CONVERSION;
 	Json::Value root;
 	root[CONNECT_CMD]=SOCK_CMD_SAVE_DAYPAY;
-	root[CMD_GETDAYPAY[EM_GET_DAYPAY_STAFFID]]=T2A(strStaffID);
-	root[CMD_GETDAYPAY[EM_GET_DAYPAY_DATE]]=T2A(strDate);
+	root[CMD_GETDAYPAY[EM_GET_DAYPAY_STAFFID]]=T2A(m_strStaffID);
+	root[CMD_GETDAYPAY[EM_GET_DAYPAY_DATE]]=T2A(m_strDate);
 	int nSize = m_vSaves.size();
 	if (nSize > 0)
 	{
@@ -380,27 +341,6 @@ void CDayCheckDlg::GetProject(Json::Value root)
 	}
 }
 
-void CDayCheckDlg::GetStaff(Json::Value root)
-{
-	m_vet.clear();
-	if (root.isMember(CMD_RetType[EM_CMD_RETYPE_VALUE]))
-	{
-		Json:: Value js = root[CMD_RetType[EM_CMD_RETYPE_VALUE]];
-		if (js.isArray())
-		{
-			int nCount = js.size();
-			for (int i=0;i<nCount;i++)
-			{
-				STAFF_STU stu;
-				stu.strname = js[i][CMD_STAFFMSG[EM_STAFF_MSG_NAME]].asCString();
-				stu.strStaffID = js[i][CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]].asCString();
-                m_vet.push_back(stu);
-			}
-		}
-	}
-	SetComboStaffValue();
-}
-
 void CDayCheckDlg::GetDayPay(Json::Value root)
 {
 	m_vCal.clear();
@@ -461,22 +401,6 @@ void CDayCheckDlg::GetOnePay(Json::Value root)
 		allMoney += m_ListCtrl.m_ListLine[i].money;
 	}
 	SetAllPayCtrl(DAYPAY_TYPE_JIJIAN,allMoney);
-}
-
-void CDayCheckDlg::SetComboStaffValue()
-{
-	((CComboBox*)GetDlgItem(IDC_COMBO_USER))->ResetContent();
-	int nSize = m_vet.size();
-	int nFindex = 0;
-	for (int i = 0; i < nSize; i++)
-	{
-		m_comboStaff.InsertString(i,m_vet[i].strname);
-		m_comboStaff.SetItemData(i,(DWORD_PTR)&m_vet[i].strStaffID);
-		if (m_vet[i].strStaffID == m_LastStaffID)
-			nFindex = i;
-	}
-	if (nSize>0)
-		m_comboStaff.SetCurSel(nFindex);
 }
 
 void CDayCheckDlg::UpdateDlg()
@@ -603,26 +527,6 @@ void CDayCheckDlg::OnBnClickedBtnDel()
 //保存
 void CDayCheckDlg::OnBnClickedBtnSave()
 {
-	CTime t;
-	m_DateTCtrl.GetTime(t);
-	CString strDate = t.Format(L"%Y/%m/%d");
-
-	CString strStaffID= L"";
-	int ndex = m_comboStaff.GetCurSel();
-	if (ndex < 0)
-	{
-		MessageBox(L"请先添加员工信息",L"提示");
-		return;
-	}
-	else
-		strStaffID = *((CString*)m_comboStaff.GetItemData(ndex));
-
-	if (strStaffID ==  L"")
-	{
-		MessageBox(L"获取职工ID失败！",  L"错误");
-		return;
-	}
-
 	m_vSaves.clear();
 
 	//天
@@ -684,7 +588,7 @@ void CDayCheckDlg::OnBnClickedBtnSave()
 		}
 	}
 	//先删除，再保存
-	SendToDelDayPay(strStaffID,strDate);
+	SendToDelDayPay(m_strStaffID,m_strDate);
 }
 
 void CDayCheckDlg::SetAllPayCtrl(DAYPAY_TYPE type, double money)
@@ -726,15 +630,6 @@ void CDayCheckDlg::SetAllPayCtrl(DAYPAY_TYPE type, double money)
 }
 
 
-void CDayCheckDlg::OnCbnSelchangeComboUser()
-{
-	// TODO:  在此添加控件通知处理程序代码
-	int ndex = m_comboStaff.GetCurSel();
-	if(ndex>=0)
-		m_LastStaffID = *((CString*)m_comboStaff.GetItemData(ndex));
-	SendToGetDayPay();
-}
-
 void CDayCheckDlg::OnEnChangeEditPer()
 {
 	CString strPayDay, strDays;
@@ -763,26 +658,4 @@ void CDayCheckDlg::OnEnChangeEditDay()
 	str.Format(L"金额：%.02f", money);
 	SetDlgItemText(IDC_ZJ2, str);
 	SetAllPayCtrl(DAYPAY_TYPE_DAY,money);
-}
-
-void CDayCheckDlg::OnDtnDatetimechangeDatetimepicker1(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMDATETIMECHANGE pDTChange = reinterpret_cast<LPNMDATETIMECHANGE>(pNMHDR);
-	// TODO: 在此添加控件通知处理程序代码
-	CTime t;
-	m_DateTCtrl.GetTime(t);
-	CString s = t.Format(L"%Y/%m/%d");
-	CString str;
-	str.Format(L"%s 核算", s);
-	m_GroupCtrl.SetWindowText(str);
-	SendToGetDayPay();
-	*pResult = 0;
-}
-
-
-void CDayCheckDlg::OnBnClickedBtnUpdate()
-{
-	UpdateDlg();
-	//m_ListCtrl.UpdateVdata();
-	//SetListCtrlValue();
 }

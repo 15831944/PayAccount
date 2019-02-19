@@ -248,7 +248,6 @@ void CMyListCtrl::GetPay(int nItem)
 	CComboBox* pComboBook = NULL;
 
 	CString strPay;
-	CString strStaffID=L"";
 
 	int nNum = m_ListLine.size();
 	if (nItem>=nNum)
@@ -259,14 +258,8 @@ void CMyListCtrl::GetPay(int nItem)
 	pComboBook = m_ListLine[nItem].pComboBook;
 	if (pComboProject && pComboBook)
 	{
-		int ndex = pThis->m_comboStaff.GetCurSel();
-		if (ndex>=0)
-		{
-			strStaffID = *((CString*)pThis->m_comboStaff.GetItemData(ndex));
-		}
-
 		int proID;
-		ndex = pComboProject->GetCurSel();
+		int ndex = pComboProject->GetCurSel();
 		if (ndex >= 0)
 		{
 			proID = *((int*)pComboProject->GetItemData(ndex));
@@ -279,23 +272,15 @@ void CMyListCtrl::GetPay(int nItem)
 			strBookID = *((CString*)pComboBook->GetItemData(ndex));
 		}
 
-		if (!strBookID.IsEmpty() && !strStaffID.IsEmpty())
+		if (!strBookID.IsEmpty())
 		{
-			pThis->SendToGetOnePay(strStaffID,proID, strBookID,nItem);
+			pThis->SendToGetOnePay(pThis->m_strStaffID,proID, strBookID,nItem);
 		}
 	}
 }
 
 void CMyListCtrl::OnSelchangeCombo(UINT nID)
 {
-	CString strStaffID=L"";
-	
-	int ndex = pThis->m_comboStaff.GetCurSel();
-	if (ndex>=0)
-	{
-		strStaffID = *((CString*)pThis->m_comboStaff.GetItemData(ndex));
-	}
-
 	int nSize = m_ListLine.size();
 	for (int i = 0; i < nSize;i++)
 	{
@@ -303,7 +288,7 @@ void CMyListCtrl::OnSelchangeCombo(UINT nID)
 		if (line.nComboxBookID == nID || line.nComboxProID == nID)
 		{
 			int proID;
-			ndex = line.pComboProject->GetCurSel();
+			int ndex = line.pComboProject->GetCurSel();
 			if (ndex >= 0)
 			{
 				proID = *((int*)line.pComboProject->GetItemData(ndex));
@@ -316,9 +301,9 @@ void CMyListCtrl::OnSelchangeCombo(UINT nID)
 				strBookID = *((CString*)line.pComboBook->GetItemData(ndex));
 			}
 
-			if (!strBookID.IsEmpty() && !strStaffID.IsEmpty())
+			if (!strBookID.IsEmpty())
 			{
-				pThis->SendToGetOnePay(strStaffID,proID, strBookID,line.nItem);
+				pThis->SendToGetOnePay(pThis->m_strStaffID,proID, strBookID,line.nItem);
 			}
 			else
 			{

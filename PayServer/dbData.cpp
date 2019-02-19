@@ -10,6 +10,9 @@ CDbData::CDbData()
 {
 	m_sqlite=NULL;
 	m_strSql="";
+	m_hOnePay = CreateMutex(NULL, FALSE, NULL);
+	m_hBook = CreateMutex(NULL, FALSE, NULL);
+	m_hStaff = CreateMutex(NULL, FALSE, NULL);
 }
 
 CDbData::~CDbData()
@@ -18,6 +21,9 @@ CDbData::~CDbData()
 	{
 		delete m_sqlite;
 	}
+	CloseHandle(m_hOnePay);
+	CloseHandle(m_hBook);
+	CloseHandle(m_hStaff);
 }
 
 CString CDbData::GetTimeNow()
@@ -73,6 +79,7 @@ bool CDbData::_JudgeStaff(CString idcard, Json::Value& root)
 
 bool CDbData::AddStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type)
 {
+	WaitForSingleObject(m_hStaff, INFINITE); 
 	USES_CONVERSION;
 	bool ret=false;
 	char sql[MAX_PATH];
@@ -98,6 +105,7 @@ bool CDbData::AddStaff(CString strName,CString strSex,int age,CString strStaffID
 	{
 		ret=false;
 	}
+	ReleaseMutex(m_hStaff);
 	return ret;
 }
 
@@ -118,34 +126,6 @@ bool CDbData::AddUser(CString strName, CString strPass, int nType)
 		{
 			sqlite3_step(stmt);
 			ret = true;
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-		ret = false;
-	}
-	return ret;
-}
-
-bool CDbData::JudgePro(CString strName,bool& bExit)
-{
-	bool ret;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT name FROM project WHERE name='%s'", g_Globle.EncodeToUTF8(W2A(strName)));
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			ret = true;
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				bExit = true;
-				break;
-			}
 		}
 		sqlite3_finalize(stmt);
 	}
@@ -462,34 +442,6 @@ bool CDbData::GetLastLoginName(CString& strName)
 	return ret;
 }
 
-bool CDbData::GetDianyePay(CString& strdown,CString& strup)
-{
-	USES_CONVERSION;
-	bool ret = false;
-	char sql[MAX_PATH];
-	try
-	{
-		sprintf(sql, "SELECT w_down,w_up FROM dianye_number_pay WHERE id='1'");
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				ret = true;
-				strdown = (char*)sqlite3_column_text(stmt, 0);
-				strup = (char*)sqlite3_column_text(stmt, 1);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-		ret = false;
-	}
-	return ret;
-}
-
 bool CDbData::_GetDyPay(Json::Value& root)
 {
 	USES_CONVERSION;
@@ -522,6 +474,7 @@ bool CDbData::_GetDyPay(Json::Value& root)
 
 bool CDbData::DelStaff(CString strStaffID)
 {
+	WaitForSingleObject(m_hStaff, INFINITE); 
 	USES_CONVERSION;
 	bool ret=false;
 	char sql[MAX_PATH];
@@ -548,53 +501,8 @@ bool CDbData::DelStaff(CString strStaffID)
 	{
 		ret=false;
 	}
+	ReleaseMutex(m_hStaff); 
 	return ret;
-}
-
-vector<STAFF_STU> CDbData::GetStaff(CString strName)
-{
-	USES_CONVERSION;
-	vector<STAFF_STU> vct;
-	char sql[MAX_PATH];
-	try
-	{
-		if (strName.IsEmpty())
-		{
-			m_strSql.Format(L"SELECT* FROM staff");
-			sprintf(sql,"SELECT* FROM staff");
-		}
-		else
-		{
-			sprintf(sql,"SELECT* FROM staff WHERE staff.name like '%%%s%%'",g_Globle.EncodeToUTF8(W2A(strName)));
-		}
-		sqlite3_stmt *stmt = NULL;//语句句柄
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			// 每调一次sqlite3_step()函数，stmt语句句柄就会指向下一条记录
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				STAFF_STU stu;
-				const char* tmp = (const char*)sqlite3_column_text(stmt, 1);
-				stu.strname=g_Globle.UTF8ToEncode(tmp);
-				const char* tmp2 = (const char*)sqlite3_column_text(stmt, 2);
-				stu.strSex=g_Globle.UTF8ToEncode(tmp2);
-				stu.age=sqlite3_column_int(stmt, 3);
-				stu.strIdCard=sqlite3_column_text(stmt, 4);
-				stu.strInTime=sqlite3_column_text(stmt, 5);
-				stu.strTel=sqlite3_column_text(stmt, 6);
-				stu.type = (STAFF_TYPE)sqlite3_column_int(stmt, 7);
-				vct.push_back(stu);
-			}
-		}
-		//清理语句句柄，准备执行下一个语句
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return vct;
 }
 
 bool CDbData::GetStaffs(CString strKeyWord,Json::Value& root,int nstart,int number)
@@ -709,6 +617,7 @@ bool CDbData::GetSampleStaffs(Json::Value& root)
 
 bool CDbData::AddBook(CString strID, CString strName,CString strCbs,CString strDate,int nBc1,int nBc2, int nSize1,int nSize2,int nKb, double yz,int ys,int bc,double ls,int yzType,int zyType,int rkType,CString strMsg)
 {
+	WaitForSingleObject(m_hBook, INFINITE); 
 	USES_CONVERSION;
 	bool ret=false;
 	char sql[1024*10];
@@ -746,11 +655,13 @@ bool CDbData::AddBook(CString strID, CString strName,CString strCbs,CString strD
 	{
 		ret=false;
 	}
+	ReleaseMutex(m_hBook);
 	return ret;
 }
 
 bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type)
 {
+	WaitForSingleObject(m_hStaff, INFINITE); 
 	USES_CONVERSION;
 	bool ret=false;
 	char sql[1024*10];
@@ -777,11 +688,13 @@ bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaf
 	{
 		ret=false;
 	}
+	ReleaseMutex(m_hStaff);
 	return ret;
 }
 
 bool CDbData::ModifyBook(CString strID, CString strName,CString strCbs,CString strDate,int nBc1,int nBc2, int nSize1,int nSize2,int nKb, double yz,int ys,int bc,double ls,int yzType,int zyType,int rkType,CString strMsg)
 {
+	WaitForSingleObject(m_hBook, INFINITE);
 	USES_CONVERSION;
 	bool ret=false;
 	char sql[1024*10];
@@ -819,6 +732,7 @@ bool CDbData::ModifyBook(CString strID, CString strName,CString strCbs,CString s
 	{
 		ret=false;
 	}
+	ReleaseMutex(m_hBook); 
 	return ret;
 }
 
@@ -853,6 +767,7 @@ bool CDbData::ModifyProject(int id,CString strProName,PRO_NUM_TYPE pn_type,PRO_S
 
 bool CDbData::DelBook(CString strBookID)
 {
+	WaitForSingleObject(m_hBook, INFINITE);
 	USES_CONVERSION;
 	bool ret=false;
 	char sql[MAX_PATH];
@@ -884,6 +799,7 @@ bool CDbData::DelBook(CString strBookID)
 	{
 		ret=false;
 	}
+	ReleaseMutex(m_hBook); 
 	return ret;
 }
 
@@ -910,108 +826,6 @@ bool CDbData::DelUser(CString strName)
 		ret = false;
 	}
 	return ret;
-}
-
-vector<BOOK_STU> CDbData::GetBook(CString strKeyWord,int rkType,int& nCount,int nStart,int nNum)
-{
-	vector<BOOK_STU> vct;
-	USES_CONVERSION;
-
-	//获取条数
-	try
-	{
-		char sql[MAX_PATH];
-		if (strKeyWord.IsEmpty())
-		{
-			if(rkType == BOOK_RK_MAX)
-				sprintf(sql,"SELECT COUNT(*) AS num FROM book",nStart,nNum);
-			else
-				sprintf(sql,"SELECT COUNT(*) AS num FROM book WHERE book.rk_type='%d'",rkType);
-		}
-		else
-		{
-			if(rkType == BOOK_RK_MAX)
-				sprintf(sql,"SELECT COUNT(*) AS num FROM book WHERE book.name like '%%%s%%'",g_Globle.EncodeToUTF8(W2A(strKeyWord)));
-			else
-				sprintf(sql,"SELECT COUNT(*) AS num FROM book WHERE book.rk_type='%d' AND book.name like '%%%s%%'",rkType,g_Globle.EncodeToUTF8(W2A(strKeyWord)));
-
-		}
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				nCount = sqlite3_column_int(stmt,0);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-	}
-
-	try
-	{
-		char sql[MAX_PATH];
-		if (strKeyWord.IsEmpty())
-		{
-			if(rkType == BOOK_RK_MAX)
-			    sprintf(sql,"SELECT* FROM book ORDER BY xd_date ASC LIMIT '%d','%d'",nStart,nNum);
-			else
-				sprintf(sql,"SELECT* FROM book WHERE book.rk_type='%d' ORDER BY xd_date ASC LIMIT '%d','%d'",rkType,nStart,nNum);
-		}
-		else
-		{
-			if(rkType == BOOK_RK_MAX)
-				sprintf(sql,"SELECT* FROM book WHERE book.name like '%%%s%%' ORDER BY xd_date ASC LIMIT '%d','%d'",g_Globle.EncodeToUTF8(W2A(strKeyWord)),nStart,nNum);
-			else
-				sprintf(sql,"SELECT* FROM book WHERE book.rk_type='%d' AND book.name like '%%%s%%' ORDER BY xd_date ASC LIMIT '%d','%d'",rkType,g_Globle.EncodeToUTF8(W2A(strKeyWord)),nStart,nNum);
-			
-		}
-		sqlite3_stmt *stmt = NULL;//语句句柄
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			// 每调一次sqlite3_step()函数，stmt语句句柄就会指向下一条记录
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				BOOK_STU stu;
-				stu.strBookID = (char*)sqlite3_column_text(stmt, 1);
-				const char* tmp=(const char*)sqlite3_column_text(stmt, 2);
-				stu.strname=g_Globle.UTF8ToEncode(tmp);
-				const char* tmp2=(const char*)sqlite3_column_text(stmt, 3);
-				stu.strCbs=g_Globle.UTF8ToEncode(tmp2);
-				stu.strDate = (char*)sqlite3_column_text(stmt, 4);
-				stu.nBc1 = sqlite3_column_int(stmt,5);
-				stu.nBc2 = sqlite3_column_int(stmt,6);
-				stu.nSize1 = sqlite3_column_int(stmt,7);
-				stu.nSize2 = sqlite3_column_int(stmt,8);
-				stu.nKb = sqlite3_column_int(stmt,9);
-				stu.fYz = sqlite3_column_double(stmt,10);
-				stu.nYs = sqlite3_column_int(stmt,11);
-				stu.nBc = sqlite3_column_int(stmt,12);
-				stu.fLs = sqlite3_column_double(stmt,13);
-				stu.type = (BOOK_TYPE)sqlite3_column_int(stmt, 14);
-				stu.zyType = (ZHEYEPAY_TYPE)sqlite3_column_int(stmt, 15);
-				stu.rkType = (BOOK_RK)sqlite3_column_int(stmt, 16);
-				const char* tmp3=(const char*)sqlite3_column_text(stmt, 17);
-				if (tmp3 != NULL)
-				{
-					stu.strMsg=g_Globle.UTF8ToEncode(tmp3);
-				}
-				
-				vct.push_back(stu);
-			}
-		}
-		//清理语句句柄，准备执行下一个语句
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return vct;
 }
 
 bool CDbData::GetBooks(Json::Value& root,CString strKeyWord,int rkType,EM_DATE_TYPE dateType,int nStart,int nNum)
@@ -1214,83 +1028,6 @@ bool CDbData::GetSampleBooks(Json::Value& root,BOOK_RK rkType)
 	return true;
 }
 
-BOOK_STU CDbData::GetBookFromID(CString strBookID)
-{
-	BOOK_STU stu;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql,"SELECT* FROM book WHERE book.bookID =  '%s'",W2A(strBookID));
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				stu.strBookID = (char*)sqlite3_column_text(stmt, 1);
-				const char* tmp=(const char*)sqlite3_column_text(stmt, 2);
-				stu.strname=g_Globle.UTF8ToEncode(tmp);
-				const char* tmp2=(const char*)sqlite3_column_text(stmt, 3);
-				stu.strCbs=g_Globle.UTF8ToEncode(tmp2);
-				stu.strDate = (char*)sqlite3_column_text(stmt, 4);
-				stu.nBc1 = sqlite3_column_int(stmt,5);
-				stu.nBc2 = sqlite3_column_int(stmt,6);
-				stu.nSize1 = sqlite3_column_int(stmt,7);
-				stu.nSize2 = sqlite3_column_int(stmt,8);
-				stu.nKb = sqlite3_column_int(stmt,9);
-				stu.fYz = sqlite3_column_double(stmt,10);
-				stu.nYs = sqlite3_column_int(stmt,11);
-				stu.nBc = sqlite3_column_int(stmt,12);
-				stu.fLs = sqlite3_column_double(stmt,13);
-				stu.type = (BOOK_TYPE)sqlite3_column_int(stmt, 14);
-				stu.zyType = (ZHEYEPAY_TYPE)sqlite3_column_int(stmt, 15);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-	}
-	return stu;
-}
-
-vector<USER_STU> CDbData::GetUser()
-{
-	vector<USER_STU> vct;
-	char sql[MAX_PATH];
-	try
-	{
-		sprintf(sql, "SELECT name,type,time,show_pass,pass FROM user");
-		sqlite3_stmt *stmt = NULL;//语句句柄
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			// 每调一次sqlite3_step()函数，stmt语句句柄就会指向下一条记录
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				USER_STU stu;
-				stu.strname = (char*)sqlite3_column_text(stmt, 0);
-				stu.type = sqlite3_column_int(stmt, 1);
-				stu.strTime = (char*)sqlite3_column_text(stmt, 2);
-				stu.show_pass = sqlite3_column_int(stmt, 3);
-				stu.strPass = (char*)sqlite3_column_text(stmt, 4);
-				if (stu.strname !=L"admin")
-				{
-					vct.push_back(stu);
-				}
-			}
-		}
-		//清理语句句柄，准备执行下一个语句
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return vct;
-}
-
 bool CDbData::GetUsers(Json::Value& root)
 {
 	char sql[MAX_PATH];
@@ -1330,36 +1067,6 @@ bool CDbData::GetUsers(Json::Value& root)
 	return true;
 }
 
-bool CDbData::JudgeBook(CString strName,bool& bExit)
-{
-	bool ret;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT name FROM book WHERE book.name='%s'",W2A(strName));
-		sqlite3_stmt *stmt = NULL;//语句句柄
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			ret=true;
-			// 每调一次sqlite3_step()函数，stmt语句句柄就会指向下一条记录
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				bExit=true;
-				break;
-			}
-		}
-		//清理语句句柄，准备执行下一个语句
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-		ret=false;
-	}
-	return ret;
-}
-
 bool CDbData::_JudgeBook(CString strName, Json::Value& root)
 {
 	bool ret = false;
@@ -1386,34 +1093,6 @@ bool CDbData::_JudgeBook(CString strName, Json::Value& root)
 	catch (...)
 	{
 		ret=false;
-	}
-	return ret;
-}
-
-bool CDbData::JudgeUser(CString strName, bool& bExit)
-{
-	bool ret;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT name FROM user WHERE user.name='%s'", W2A(strName));
-		sqlite3_stmt *stmt = NULL;//语句句柄
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			ret = true;
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				bExit = true;
-				break;
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-		ret = false;
 	}
 	return ret;
 }
@@ -1659,42 +1338,6 @@ bool CDbData::InitData()
 	return ret;
 }
 
-vector<PROJECT_STU> CDbData::GetProjectList(PRO_STAFF_TYPE type)
-{
-	vector<PROJECT_STU> vct;
-	char sql[MAX_PATH];
-	try
-	{
-		if(type == PRO_STAFF_TYPE_MAX)
-			sprintf(sql, "SELECT id,name,pro_num_type,staff_write FROM project");
-		else
-			sprintf(sql, "SELECT id,name,pro_num_type,staff_write FROM project WHERE staff_write='%d'",PRO_STAFF_TYPE_YES);
-		
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				PROJECT_STU stu;
-				CString str;
-				stu.nID = sqlite3_column_int(stmt, 0);
-				const char* tmp=(const char*)sqlite3_column_text(stmt, 1);
-				stu.strName=g_Globle.UTF8ToEncode(tmp);
-				stu.pn_type = (PRO_NUM_TYPE)sqlite3_column_int(stmt, 2);
-				stu.ps_type = (PRO_STAFF_TYPE)sqlite3_column_int(stmt, 3);
-				vct.push_back(stu);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return vct;
-}
-
 bool CDbData::GetProjectLists(Json::Value& root,PRO_STAFF_TYPE type)
 {
 	char sql[MAX_PATH];
@@ -1799,78 +1442,6 @@ bool CDbData::SaveStaffWrite(CString strBookID,int proID,double number)
 	return ret;
 }
 
-bool CDbData::GetDaiPay(STU_DAI_PAY& stu)
-{
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT id,a_pay,sf_pay,gr_pay FROM dai_number_pay");
-		sqlite3_stmt *stmt = NULL;//语句句柄
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			// 每调一次sqlite3_step()函数，stmt语句句柄就会指向下一条记录
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				int nID = sqlite3_column_int(stmt, 0);
-				switch (nID)
-				{
-					case DAINUMPAY_TYPE_W:
-					{
-						stu.strA_w=(char*)sqlite3_column_text(stmt, 1);
-						stu.strSf_w=(char*)sqlite3_column_text(stmt, 2);
-						stu.strTd_w = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case DAINUMPAY_TYPE_2:
-					{
-						stu.strA_2 = (char*)sqlite3_column_text(stmt, 1);
-						stu.strSf_2 = (char*)sqlite3_column_text(stmt, 2);
-						stu.strTd_2 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case DAINUMPAY_TYPE_2_5:
-					{
-						stu.strA_2_5 = (char*)sqlite3_column_text(stmt, 1);
-						stu.strSf_2_5 = (char*)sqlite3_column_text(stmt, 2);
-						stu.strTd_2_5 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case DAINUMPAY_TYPE_5_9:
-					{
-						stu.strA_5_9 = (char*)sqlite3_column_text(stmt, 1);
-						stu.strSf_5_9 = (char*)sqlite3_column_text(stmt, 2);
-						stu.strTd_5_9 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case DAINUMPAY_TYPE_10:
-					{
-						stu.strA_10 = (char*)sqlite3_column_text(stmt, 1);
-						stu.strSf_10 = (char*)sqlite3_column_text(stmt, 2);
-						stu.strTd_10 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case DAINUMPAY_TYPE_18:
-					{
-						stu.strA_18 = (char*)sqlite3_column_text(stmt, 1);
-						stu.strSf_18 = (char*)sqlite3_column_text(stmt, 2);
-						stu.strTd_18 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-				}
-			}
-		}
-		//清理语句句柄，准备执行下一个语句
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-		return false;
-	}
-	return true;
-}
-
 bool CDbData::_GetDaiPay(Json::Value& root)
 {
 	char sql[MAX_PATH];
@@ -1966,6 +1537,34 @@ bool CDbData::SaveDianyePay(CString strdown,CString strup)
 	return ret;
 }
 
+bool CDbData::GetDianyePay(CString& strdown,CString& strup)
+{
+	USES_CONVERSION;
+	bool ret = false;
+	char sql[MAX_PATH];
+	try
+	{
+		sprintf(sql, "SELECT w_down,w_up FROM dianye_number_pay WHERE id='1'");
+		sqlite3_stmt *stmt = NULL;
+		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
+		if (result == SQLITE_OK)
+		{
+			while (sqlite3_step(stmt) == SQLITE_ROW)
+			{
+				ret = true;
+				strdown = (char*)sqlite3_column_text(stmt, 0);
+				strup = (char*)sqlite3_column_text(stmt, 1);
+			}
+		}
+		sqlite3_finalize(stmt);
+	}
+	catch (...)
+	{
+		ret = false;
+	}
+	return ret;
+}
+
 bool CDbData::SaveZheYePay(STU_ZHEYE_PAY stu)
 {
 	bool ret = false;
@@ -2014,71 +1613,6 @@ bool CDbData::SaveZheYePay(STU_ZHEYE_PAY stu)
 	}
 	return ret;
 }
-
-bool CDbData::GetZheYePay(STU_ZHEYE_PAY& stu)
-{
-	char sql[MAX_PATH];
-	try
-	{
-		sprintf(sql, "SELECT id,a_pay,sf_pay,td_pay FROM zheye_number_pay");
-		sqlite3_stmt *stmt = NULL;//语句句柄
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			// 每调一次sqlite3_step()函数，stmt语句句柄就会指向下一条记录
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				int nID = sqlite3_column_int(stmt, 0);
-				switch (nID)
-				{
-					case ZHEYEPAY_TYPE_Q4:
-					{
-						stu.strAQ4 = (char*)sqlite3_column_text(stmt, 1);
-						stu.str_sf_Q4 = (char*)sqlite3_column_text(stmt, 2);
-						stu.str_td_Q4 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case ZHEYEPAY_TYPE_4:
-					{
-						stu.strA4 = (char*)sqlite3_column_text(stmt, 1);
-						stu.str_sf_4 = (char*)sqlite3_column_text(stmt, 2);
-						stu.str_td_4 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case ZHEYEPAY_TYPE_D3:
-					{
-						stu.strAD3 = (char*)sqlite3_column_text(stmt, 1);
-						stu.str_sf_D3 = (char*)sqlite3_column_text(stmt, 2);
-						stu.str_td_D3 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case ZHEYEPAY_TYPE_3:
-					{
-						stu.strA3 = (char*)sqlite3_column_text(stmt, 1);
-						stu.str_sf_3 = (char*)sqlite3_column_text(stmt, 2);
-						stu.str_td_3 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-					case ZHEYEPAY_TYPE_2:
-					{
-						stu.strA2 = (char*)sqlite3_column_text(stmt, 1);
-						stu.str_sf_2 = (char*)sqlite3_column_text(stmt, 2);
-						stu.str_td_2 = (char*)sqlite3_column_text(stmt, 3);
-						break;
-					}
-				}
-			}
-		}
-		//清理语句句柄，准备执行下一个语句
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-		return false;
-	}
-	return true;
-}
-
 
 bool CDbData::_GetZheYePay(Json::Value& root)
 {
@@ -2178,34 +1712,6 @@ bool CDbData::SaveOtherPay(int proID, vector<OTHER_PRO_PAY> vec)
 		ret = false;
 	}
 	return ret;
-}
-
-vector<OTHER_PRO_PAY> CDbData::GetOtherPay(int proID)
-{
-	char sql[MAX_PATH];
-	vector<OTHER_PRO_PAY> vec;
-	try
-	{
-		sprintf(sql, "SELECT bookID,pay FROM other_number_pay WHERE proID=%d", proID);
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				OTHER_PRO_PAY stu;
-				stu.strBookID = (char*)sqlite3_column_text(stmt, 0);
-				stu.strPay = (char*)sqlite3_column_text(stmt, 1);
-				vec.push_back(stu);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-		
-	}
-	return vec;
 }
 
 bool CDbData::_GetOtherPay(Json::Value& root,int proID)
@@ -2385,126 +1891,6 @@ CString CDbData::GetOtherPayFromID(int proID, CString strBookID)
 	return strRet;
 }
 
-CString CDbData::GetOnePay(CString strStaffID, int proID, CString strBookID)
-{
-	CString strRet;
-	if (proID == PROJECT_TYPE_JIAODING)
-	{
-		//首先通过bookID获取印张印数和印张类型
-		double yz=0;
-		int ys=0,yzType=0;
-		if (GetYzAndType(strBookID, yz, ys, yzType))
-		{
-			//通过strStaff获取职工类型
-			int staffType;
-			if (GetStaffType(strStaffID, staffType))
-			{
-				DAINUMPAY_TYPE daiType = DAINUMPAY_TYPE_MAX;
-				if (ys<10000 && ys>0)
-				{
-					if (ys <= 2000)
-						daiType = DAINUMPAY_TYPE_2;
-					else if (ys >= 2001 && ys <= 5000)
-						daiType = DAINUMPAY_TYPE_2_5;
-					else if (ys >= 5001 && ys <= 9999)
-						daiType = DAINUMPAY_TYPE_5_9;
-
-					if (yzType == BOOK_TYPE_QUAN)
-					{
-						if (yzType / 2 > 24)
-							daiType = DAINUMPAY_TYPE_W;
-					}
-					else if (yzType == BOOK_TYPE_DUI)
-					{
-						if (yzType > 24)
-							daiType = DAINUMPAY_TYPE_W;
-					}
-				}
-				else if (ys >=10000)
-				{
-					if (yzType == BOOK_TYPE_QUAN)
-					{
-						yz = yz / 2;
-					}
-					if (yz>=5)
-					{
-						daiType = DAINUMPAY_TYPE_18;
-					}
-					else
-					{
-						daiType = DAINUMPAY_TYPE_10;
-					}
-				}
-
-				if (daiType != DAINUMPAY_TYPE_MAX)
-				{
-					//获取
-					char sql[MAX_PATH];
-					try
-					{
-						if (staffType == STAFF_TYPE_SF)
-							sprintf(sql, "SELECT sf_pay FROM dai_number_pay WHERE id='%d'", daiType);
-						else if (staffType == STAFF_TYPE_PT)
-							sprintf(sql, "SELECT gr_pay FROM dai_number_pay WHERE id='%d'", daiType);
-						else if (staffType == STAFF_TYPE_PT_SF)
-							sprintf(sql, "SELECT a_pay FROM dai_number_pay WHERE id='%d'", daiType);
-
-						sqlite3_stmt *stmt = NULL;
-						int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-						if (result == SQLITE_OK)
-						{
-							while (sqlite3_step(stmt) == SQLITE_ROW)
-							{
-								strRet = (char*)sqlite3_column_text(stmt, 0);
-							}
-						}
-						sqlite3_finalize(stmt);
-					}
-					catch (...)
-					{
-					}
-				}
-			}
-		}
-	}
-	else if (proID == PROJECT_TYPE_ZY)
-	{
-		//通过bookID获取折页类型
-		int zyType;
-		if (GetZyType(strBookID,zyType))
-		{
-			//通过strStaff获取职工类型
-			int staffType;
-			if (GetStaffType(strStaffID, staffType))
-			{
-				strRet = GetZyPayFromID(zyType,staffType);
-			}
-		}
-	}
-	else if (proID == PROJECT_TYPE_DY)
-	{
-		//通过bookID获取印数
-		double yz=0;
-		int ys=0,yzType=0;
-		if (GetYzAndType(strBookID, yz, ys, yzType))
-		{
-			CString strDown,strUp;
-			if (GetDianyePay(strDown,strUp))
-			{
-				if (ys<10000)
-					strRet = strDown;
-				else
-					strRet = strUp;
-			}
-		}
-	}
-	else
-	{
-		strRet = GetOtherPayFromID(proID, strBookID);
-	}
-	return strRet;
-}
-
 bool CDbData::_GetOnePay(Json::Value& root,CString strStaffID, int proID, CString strBookID)
 {
 	bool bRet =true;
@@ -2638,6 +2024,8 @@ bool CDbData::_GetOnePay(Json::Value& root,CString strStaffID, int proID, CStrin
 
 bool CDbData::DeleteDayPay(CString strStaffID, CString strDate)
 {
+	WaitForSingleObject(m_hOnePay, INFINITE); 
+	
 	bool ret = false;
 	char sql[MAX_PATH];
 	USES_CONVERSION;
@@ -2665,43 +2053,13 @@ bool CDbData::DeleteDayPay(CString strStaffID, CString strDate)
 	{
 		ret = false;
 	}
-	return ret;
-}
-
-bool CDbData::DeleteWorkCal(CString strStaffID,CString strDate)
-{
-	bool ret = false;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		if (!strDate.IsEmpty())
-		{
-			sprintf(sql, "DELETE FROM work_cal WHERE staffID='%s' AND date='%s'", W2A(strStaffID), W2A(strDate));
-		}
-		else
-		{
-			sprintf(sql, "DELETE FROM work_cal WHERE staffID='%s'",W2A( strStaffID));
-		}
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			sqlite3_step(stmt);
-			ret = true;
-		}
-		sqlite3_finalize(stmt);
-
-	}
-	catch (CException* e)
-	{
-		ret = false;
-	}
+	ReleaseMutex(m_hOnePay);
 	return ret;
 }
 
 bool CDbData::DeleteDayPay(int id)
 {
+	WaitForSingleObject(m_hOnePay, INFINITE); 
 	bool ret = false;
 	char sql[MAX_PATH];
 	USES_CONVERSION;
@@ -2722,11 +2080,13 @@ bool CDbData::DeleteDayPay(int id)
 	{
 		ret = false;
 	}
+	ReleaseMutex(m_hOnePay);
 	return ret;
 }
 
 bool CDbData::DeleteDayPay(CString strStaffID,int nProID,CString strBookID, CString strDate)
 {
+	WaitForSingleObject(m_hOnePay, INFINITE); 
 	bool ret = false;
 	char sql[MAX_PATH];
 	USES_CONVERSION;
@@ -2747,36 +2107,13 @@ bool CDbData::DeleteDayPay(CString strStaffID,int nProID,CString strBookID, CStr
 	{
 		ret = false;
 	}
-	return ret;
-}
-
-bool CDbData::DeleteWorkCal(CString strStaffID,int nProID,CString strBookID, CString strDate,CString strTime)
-{
-	bool ret = false;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "DELETE FROM work_cal WHERE staffID='%s' AND proID='%d' AND bookID='%s' AND date='%s' AND time='%s'", W2A(strStaffID),nProID,W2A(strBookID), W2A(strDate),W2A(strTime));
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			sqlite3_step(stmt);
-			ret = true;
-		}
-		sqlite3_finalize(stmt);
-
-	}
-	catch (CException* e)
-	{
-		ret = false;
-	}
+	ReleaseMutex(m_hOnePay);
 	return ret;
 }
 
 bool CDbData::AddDayPay(CString strStaffID, vector<DAYPAY> vec, CString strDate)
 {
+	WaitForSingleObject(m_hOnePay, INFINITE); 
 	bool ret = false;
 	char sql[1024 * 10] = { 0 };
 	USES_CONVERSION;
@@ -2816,80 +2153,8 @@ bool CDbData::AddDayPay(CString strStaffID, vector<DAYPAY> vec, CString strDate)
 	{
 		ret = false;
 	}
+	ReleaseMutex(m_hOnePay);
 	return ret;
-}
-
-bool CDbData::SaveWorkCal(CString strStaffID, vector<WOCKCAL> vec, CString strDate)
-{
-	bool ret = false;
-	char sql[1024 * 10] = { 0 };
-	USES_CONVERSION;
-	try
-	{
-		char *errmsg;
-		int result = 0;
-
-		int nSize = vec.size();
-		for (int i = 0; i < nSize; i++)
-		{
-			char stmp[1024] = { 0 };
-
-			sprintf(stmp, "INSERT INTO work_cal(staffID,proID,bookID,number,date,time) VALUES('%s','%d','%s','%d','%s','%s');",
-				W2A(strStaffID), vec[i].proID, W2A(vec[i].strBookID), vec[i].number, W2A(strDate), W2A(vec[i].strTime));
-			strcat(sql, stmp);
-		}
-		result = sqlite3_exec(m_sqlite, sql, NULL, &ret, &errmsg);
-		if (result == SQLITE_OK)
-		{
-			ret = true;
-		}
-	}
-	catch (...)
-	{
-		ret = false;
-	}
-	return ret;
-}
-
-vector<DAYPAY> CDbData::GetDayPay(CString strStaffID, CString strDate)
-{
-	vector<DAYPAY> vct;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT id,pay_type,proID,bookID,pay,number,money,payDay,days,proName,bookName FROM day_pay WHERE staffID='%s' AND date='%s'",W2A(strStaffID),W2A(strDate));
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				DAYPAY stu;
-				CString str;
-				stu.id = sqlite3_column_int(stmt, 0);
-				stu.type = (DAYPAY_TYPE)sqlite3_column_int(stmt, 1);
-				stu.proID = sqlite3_column_int(stmt, 2);
-				stu.strBookID = (char*)sqlite3_column_text(stmt, 3);
-				stu.pay = (char*)sqlite3_column_text(stmt, 4);
-				stu.number = sqlite3_column_int(stmt, 5);
-				stu.money = (char*)sqlite3_column_text(stmt, 6);
-				stu.strPayDay = (char*)sqlite3_column_text(stmt, 7);
-				stu.strDays = (char*)sqlite3_column_text(stmt, 8);
-				char* tmp = (char*)sqlite3_column_text(stmt, 9);
-				stu.strProName = g_Globle.UTF8ToEncode(tmp);
-				char* tmp2 = (char*)sqlite3_column_text(stmt, 10);
-				stu.strBookName = g_Globle.UTF8ToEncode(tmp2);
-				vct.push_back(stu);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return vct;
 }
 
 bool CDbData::_GetDayPay(Json::Value& root,CString strStaffID, CString strDate)
@@ -2938,6 +2203,89 @@ bool CDbData::_GetDayPay(Json::Value& root,CString strStaffID, CString strDate)
 	catch (...)
 	{
 		bret=false;
+	}
+	return bret;
+}
+
+bool CDbData::_GetDayPayList(Json::Value& js,Json::Value root)
+{
+	vector<STAFF_STU> v_staffs;
+	CString strDate;
+	strDate = root[CMD_GETDAYPAY[EM_GET_DAYPAY_DATE]].asCString();
+	if (root.isMember(CMD_RetType[EM_CMD_RETYPE_VALUE]))
+	{
+		if (root[CMD_RetType[EM_CMD_RETYPE_VALUE]].isArray())
+		{
+			Json::Value ones1 = root[CMD_RetType[EM_CMD_RETYPE_VALUE]];
+			int n1 = ones1.size();
+			for (int i=0;i<n1;i++)
+			{
+				Json::Value one1 = ones1[i];
+				STAFF_STU stu;
+				stu.strStaffID = one1[CMD_GETDAYPAY[EM_GET_DAYPAY_STAFFID]].asCString();
+				stu.strname = one1[CMD_GETDAYPAY[EM_GET_DAYPAY_STAFFNAME]].asCString();
+				v_staffs.push_back(stu);
+			}
+		}
+	}
+
+	bool bret=true;
+	char sql[MAX_PATH];
+	USES_CONVERSION;
+
+	try
+	{
+		for (int i=0;i<v_staffs.size();i++)
+		{
+			Json::Value one1;
+			one1[CMD_GETDAYPAY[EM_GET_DAYPAY_STAFFID]]=T2A(v_staffs[i].strStaffID);
+			one1[CMD_GETDAYPAY[EM_GET_DAYPAY_STAFFNAME]]=T2A(v_staffs[i].strname);
+
+			sprintf(sql, "SELECT id,pay_type,proID,bookID,pay,number,money,payDay,days,proName,bookName FROM day_pay WHERE staffID='%s' AND date='%s'",W2A(v_staffs[i].strStaffID),W2A(strDate));
+			sqlite3_stmt *stmt = NULL;
+			int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
+			if (result == SQLITE_OK)
+			{
+				while (sqlite3_step(stmt) == SQLITE_ROW)
+				{
+					Json::Value one;
+					CString str;
+					one[DAYPAYMSG[EM_DAYPAY_MSG_ID]] = sqlite3_column_int(stmt, 0);
+					DAYPAY_TYPE type = (DAYPAY_TYPE)sqlite3_column_int(stmt, 1);
+					one[DAYPAYMSG[EM_DAYPAY_MSG_TYPE]] = type;
+					if (type == DAYPAY_TYPE_DAY)
+					{
+						one[DAYPAYMSG[EM_DAYPAY_MSG_PAYDAY]] = (char*)sqlite3_column_text(stmt, 7);
+						one[DAYPAYMSG[EM_DAYPAY_MSG_DAYS]] = (char*)sqlite3_column_text(stmt, 8);
+					}
+					else if(type == DAYPAY_TYPE_JIJIAN)
+					{
+						one[DAYPAYMSG[EM_DAYPAY_MSG_PROID]] = sqlite3_column_int(stmt, 2);
+						one[DAYPAYMSG[EM_DAYPAY_MSG_BOOKID]] = (char*)sqlite3_column_text(stmt, 3);
+						one[DAYPAYMSG[EM_DAYPAY_MSG_PAY]] = (char*)sqlite3_column_text(stmt, 4);
+						one[DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]] = sqlite3_column_int(stmt, 5);
+						char* tmp = (char*)sqlite3_column_text(stmt, 9);
+						one[DAYPAYMSG[EM_DAYPAY_MSG_PRONAME]] = g_Globle.UTF8ToEncode(tmp);
+						char* tmp2 = (char*)sqlite3_column_text(stmt, 10);
+						one[DAYPAYMSG[EM_DAYPAY_MSG_BOOKNAME]] = g_Globle.UTF8ToEncode(tmp2);
+					}
+					one[DAYPAYMSG[EM_DAYPAY_MSG_MONEY]] = (char*)sqlite3_column_text(stmt, 6);	
+
+					one1[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one);
+				}
+				js[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one1);
+			}
+			else
+			{
+				bret = false;
+				break;
+			}
+			sqlite3_finalize(stmt);
+		}
+	}
+	catch (...)
+	{
+		bret = false;
 	}
 	return bret;
 }
@@ -3044,73 +2392,6 @@ bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root)
 	return bret;
 }
 
-vector<WOCKCAL> CDbData::GetWorkCal(CString strStaffID, CString strDate)
-{
-	vector<WOCKCAL> vct;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT work_cal.proID,work_cal.bookID,work_cal.number,work_cal.time,book.name,project.name FROM work_cal,book,project WHERE project.id=work_cal.proID AND book.bookID= work_cal.bookID AND staffID='%s' AND date='%s'",W2A(strStaffID),W2A(strDate));
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				WOCKCAL stu;
-				CString str;
-				stu.proID = sqlite3_column_int(stmt, 0);
-				stu.strBookID = (char*)sqlite3_column_text(stmt, 1);
-				stu.number = sqlite3_column_int(stmt, 2);
-				stu.strTime = (char*)sqlite3_column_text(stmt, 3);
-				const char* tmp = (const char*)sqlite3_column_text(stmt, 4);
-				stu.strBookName  = g_Globle.UTF8ToEncode(tmp);
-				const char* tmp2 = (const char*)sqlite3_column_text(stmt, 5);
-				stu.strProName  = g_Globle.UTF8ToEncode(tmp2);
-				vct.push_back(stu);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return vct;
-}
-
-vector<STU_DETAIL> CDbData::GetDetail(int proID,CString strBookID)
-{
-	vector<STU_DETAIL> vct;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT staff.name,staff.idcard,day_pay.number FROM day_pay,staff WHERE day_pay.proID='%d' AND day_pay.bookID='%s' AND day_pay.staffID = staff.idcard",proID,W2A(strBookID));
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				STU_DETAIL stu;
-				const char* tmp = (char*)sqlite3_column_text(stmt, 0);
-				stu.strName = g_Globle.UTF8ToEncode(tmp);
-				stu.stridCard = (char*)sqlite3_column_text(stmt, 1);
-				stu.number = sqlite3_column_int(stmt, 2);
-				vct.push_back(stu);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return vct;
-}
-
 bool CDbData::_GetDetails(Json::Value& root,vector<PROJECT_STU> vProIDs,CString strBookID)
 {
 	USES_CONVERSION;
@@ -3163,32 +2444,6 @@ bool CDbData::_GetDetails(Json::Value& root,vector<PROJECT_STU> vProIDs,CString 
 		return false;
 	}
 	return true;
-}
-
-int CDbData::GetProgress(CString strBookID,int proID)
-{
-	int number = 0;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT number FROM progress WHERE proID='%d' AND bookID='%s'",proID,W2A(strBookID));
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				number = sqlite3_column_int(stmt, 0);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return number;
 }
 
 bool CDbData::GetStaffWrite(Json::Value& js,CString strBookID,int proID)
@@ -3284,40 +2539,4 @@ bool CDbData::_GetProgress(Json::Value& js,Json::Value root, CString strBookID)
 		}
 	}
 	return true;
-}
-
-vector<DAYPAY> CDbData::GetWorkCalMonth(CString strStaffID, CString strDate)
-{
-	vector<DAYPAY> vct;
-	char sql[MAX_PATH];
-	USES_CONVERSION;
-	try
-	{
-		sprintf(sql, "SELECT pay_type,proID,bookID,pay,number,money,payDay,days FROM day_pay WHERE staffID='%s' AND date like '%s%%'", W2A(strStaffID), W2A(strDate));
-		sqlite3_stmt *stmt = NULL;
-		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
-		if (result == SQLITE_OK)
-		{
-			while (sqlite3_step(stmt) == SQLITE_ROW)
-			{
-				DAYPAY stu;
-				CString str;
-				stu.type = (DAYPAY_TYPE)sqlite3_column_int(stmt, 0);
-				stu.proID = sqlite3_column_int(stmt, 1);
-				stu.strBookID = (char*)sqlite3_column_text(stmt, 2);
-				stu.pay = (char*)sqlite3_column_text(stmt, 3);
-				stu.number = sqlite3_column_int(stmt, 4);
-				stu.money = (char*)sqlite3_column_text(stmt, 5);
-				stu.strPayDay = (char*)sqlite3_column_text(stmt, 6);
-				stu.strDays = (char*)sqlite3_column_text(stmt, 7);
-				vct.push_back(stu);
-			}
-		}
-		sqlite3_finalize(stmt);
-	}
-	catch (...)
-	{
-
-	}
-	return vct;
 }

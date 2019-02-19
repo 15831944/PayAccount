@@ -152,6 +152,7 @@
     <ClCompile Include="UserMngDlg.cpp" />
     <ClCompile Include="DayCheckDlg.cpp" />
     <ClCompile Include="ProcessDlg.cpp" />
+    <ClCompile Include="WorkCalDlg.cpp" />
     <ClCompile Include="ZheYeDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -191,6 +192,7 @@
     <ClInclude Include="UserMngDlg.h" />
     <ClInclude Include="DayCheckDlg.h" />
     <ClInclude Include="ProcessDlg.h" />
+    <ClInclude Include="WorkCalDlg.h" />
     <ClInclude Include="ZheYeDlg.h" />
   </ItemGroup>
   <ItemGroup>
