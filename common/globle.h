@@ -7,7 +7,7 @@ using std::string;
 using std::vector;
 using namespace std;
 
-#define MAXBUFFLEN 1024*10*10
+#define MAXBUFFLEN 1024*10*10*5
 
 #define  WM_VDATAUPDATE WM_USER+11
 
@@ -161,7 +161,7 @@ struct DAYPAY
 	CString strBookID;//图书ID
 	CString strBookName;
 	CString pay;//单价
-	int number;//数量
+	double number;//数量
 	CString money;//单价x数量
 
 	CString strPayDay;
@@ -170,6 +170,7 @@ struct DAYPAY
 	DAYPAY()
 	{
 		type = DAYPAY_TYPE_MAX;
+		number = 0;
 	}
 };
 
@@ -184,6 +185,8 @@ public:
 	CString strInTime;
 	CString strTel;
 	STAFF_TYPE type;
+	int sort;
+	int nFirstAscii;//拼音首字母ascii值，用于排序
 };
 
 //用于保存和获取其它项目单价
@@ -311,6 +314,8 @@ public:
 	~CGloble(){}
 private:
 	void Convert(char* strIn,char* strOut, int sourceCodepage, int targetCodepage);
+    CString HzToPinYin(CString str);
+	char convert(wchar_t n);
 public:
     CString GetWorkDir();
 	char* EncodeToUTF8(const char* mbcsStr);
@@ -323,6 +328,7 @@ public:
 	bool EndianJudge();
 	int GetDays(int year,int month);
 	CString ReturnBeginTime(EM_DATE_TYPE type);
+	int GetFirstAsciiValue(CString strName);
 public:
 	string m_LocalIP;//本地IP
 	int    m_TcpPort;//本机TCP/IP服务端口

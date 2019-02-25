@@ -77,7 +77,7 @@ bool CDbData::_JudgeStaff(CString idcard, Json::Value& root)
 	return ret;
 }
 
-bool CDbData::AddStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type)
+bool CDbData::AddStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort)
 {
 	WaitForSingleObject(m_hStaff, INFINITE); 
 	USES_CONVERSION;
@@ -86,10 +86,10 @@ bool CDbData::AddStaff(CString strName,CString strSex,int age,CString strStaffID
 	try
 	{
 		CString strTime = GetTimeNow();
-		sprintf(sql,"INSERT INTO staff(name,sex,age,idcard,intime,tell,type,staffID) VALUES('%s','%s',%d,'%s','%s','%s','%d','%s');",
+		sprintf(sql,"INSERT INTO staff(name,sex,age,idcard,intime,tell,type,sort,staffID) VALUES('%s','%s',%d,'%s','%s','%s','%d','%d','%s');",
 			g_Globle.EncodeToUTF8(W2A(strName)),
 			g_Globle.EncodeToUTF8(W2A(strSex)),
-			age,W2A(idcard),W2A(strTime),W2A(strTel),type,W2A(strStaffID));
+			age,W2A(idcard),W2A(strTime),W2A(strTel),type,sort,W2A(strStaffID));
 
 		sqlite3_stmt *stmt = NULL;//Óï¾ä¾ä±ú
 		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
@@ -539,11 +539,11 @@ bool CDbData::GetStaffs(CString strKeyWord,Json::Value& root,int nstart,int numb
 		char sql[MAX_PATH];
 		if (strKeyWord.IsEmpty())
 		{
-			sprintf(sql,"SELECT* FROM staff LIMIT '%d','%d'",nstart,number);
+			sprintf(sql,"SELECT* FROM staff ORDER BY sort LIMIT '%d','%d'",nstart,number);
 		}
 		else
 		{
-			sprintf(sql,"SELECT* FROM staff WHERE staff.name like '%%%s%%' LIMIT '%d','%d'",g_Globle.EncodeToUTF8(W2A(strKeyWord)),nstart,number);
+			sprintf(sql,"SELECT* FROM staff WHERE staff.name like '%%%s%%' ORDER BY sort LIMIT '%d','%d'",g_Globle.EncodeToUTF8(W2A(strKeyWord)),nstart,number);
 		}
 		sqlite3_stmt *stmt = NULL;//Óï¾ä¾ä±ú
 		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
@@ -562,6 +562,7 @@ bool CDbData::GetStaffs(CString strKeyWord,Json::Value& root,int nstart,int numb
 				one[CMD_STAFFMSG[EM_STAFF_MSG_TEL]]=(char*)sqlite3_column_text(stmt, 6);
 				one[CMD_STAFFMSG[EM_STAFF_MSG_TYPE]] = (STAFF_TYPE)sqlite3_column_int(stmt, 7);
 				one[CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]]=(char*)sqlite3_column_text(stmt, 8);
+				one[CMD_STAFFMSG[EM_STAFF_MSG_SORT]]=sqlite3_column_int(stmt, 9);
 				
 				root[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one);
 			}
@@ -586,7 +587,7 @@ bool CDbData::GetSampleStaffs(Json::Value& root)
 	try
 	{
 		char sql[MAX_PATH];
-		sprintf(sql,"SELECT staffID,name FROM staff");
+		sprintf(sql,"SELECT staffID,name FROM staff ORDER BY sort");
 
 		sqlite3_stmt *stmt = NULL;//Óï¾ä¾ä±ú
 		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
@@ -659,7 +660,7 @@ bool CDbData::AddBook(CString strID, CString strName,CString strCbs,CString strD
 	return ret;
 }
 
-bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type)
+bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort)
 {
 	WaitForSingleObject(m_hStaff, INFINITE); 
 	USES_CONVERSION;
@@ -667,12 +668,13 @@ bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaf
 	char sql[1024*10];
 	try
 	{
-		sprintf(sql,"UPDATE staff SET name='%s',sex='%s',age='%d',tell='%s',type='%d',idcard='%s' WHERE staffID='%s'",
+		sprintf(sql,"UPDATE staff SET name='%s',sex='%s',age='%d',tell='%s',type='%d',sort='%d',idcard='%s' WHERE staffID='%s'",
 			g_Globle.EncodeToUTF8(W2A(strName)),
 			g_Globle.EncodeToUTF8(W2A(strSex)),
 			age,
 			W2A(strTel),
 			type,
+			sort,
 			W2A(idcard),
 			W2A(strStaffID));
 		sqlite3_stmt *stmt = NULL;
@@ -2135,7 +2137,7 @@ bool CDbData::AddDayPay(CString strStaffID, vector<DAYPAY> vec, CString strDate)
 			}
 			else if (vec[i].type == DAYPAY_TYPE_JIJIAN)
 			{
-				sprintf(stmp, "INSERT INTO day_pay(staffID,pay_type,proID,bookID,pay,number,money,date,proName,bookName) VALUES('%s','%d','%d','%s','%s','%d','%s','%s','%s','%s');",
+				sprintf(stmp, "INSERT INTO day_pay(staffID,pay_type,proID,bookID,pay,number,money,date,proName,bookName) VALUES('%s','%d','%d','%s','%s','%.1f','%s','%s','%s','%s');",
 					W2A(strStaffID), (int)vec[i].type, vec[i].proID, W2A(vec[i].strBookID), W2A(vec[i].pay), vec[i].number, W2A(vec[i].money), W2A(strDate),
 					g_Globle.EncodeToUTF8(W2A(vec[i].strProName) ),
 					g_Globle.EncodeToUTF8(W2A(vec[i].strBookName)));
@@ -2187,7 +2189,7 @@ bool CDbData::_GetDayPay(Json::Value& root,CString strStaffID, CString strDate)
 					one[DAYPAYMSG[EM_DAYPAY_MSG_PROID]] = sqlite3_column_int(stmt, 2);
 					one[DAYPAYMSG[EM_DAYPAY_MSG_BOOKID]] = (char*)sqlite3_column_text(stmt, 3);
 					one[DAYPAYMSG[EM_DAYPAY_MSG_PAY]] = (char*)sqlite3_column_text(stmt, 4);
-					one[DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]] = sqlite3_column_int(stmt, 5);
+					one[DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]] = sqlite3_column_double(stmt, 5);
 					char* tmp = (char*)sqlite3_column_text(stmt, 9);
 					one[DAYPAYMSG[EM_DAYPAY_MSG_PRONAME]] = g_Globle.UTF8ToEncode(tmp);
 					char* tmp2 = (char*)sqlite3_column_text(stmt, 10);
@@ -2263,7 +2265,7 @@ bool CDbData::_GetDayPayList(Json::Value& js,Json::Value root)
 						one[DAYPAYMSG[EM_DAYPAY_MSG_PROID]] = sqlite3_column_int(stmt, 2);
 						one[DAYPAYMSG[EM_DAYPAY_MSG_BOOKID]] = (char*)sqlite3_column_text(stmt, 3);
 						one[DAYPAYMSG[EM_DAYPAY_MSG_PAY]] = (char*)sqlite3_column_text(stmt, 4);
-						one[DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]] = sqlite3_column_int(stmt, 5);
+						one[DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]] = sqlite3_column_double(stmt, 5);
 						char* tmp = (char*)sqlite3_column_text(stmt, 9);
 						one[DAYPAYMSG[EM_DAYPAY_MSG_PRONAME]] = g_Globle.UTF8ToEncode(tmp);
 						char* tmp2 = (char*)sqlite3_column_text(stmt, 10);
@@ -2346,7 +2348,8 @@ bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root)
 				MONTHPAY_DAY day = staff.vDays[j];
 				Json::Value one2;
 				one2[MPAYMSG[EM_GET_MPAY_DEX]]=day.ndex;
-				sprintf(sql, "SELECT id,pay_type,proID,bookID,pay,number,money,payDay,days,proName,bookName FROM day_pay WHERE staffID='%s' AND date='%s'",W2A(staff.strStaffID),W2A(day.strDate));
+				//sprintf(sql, "SELECT id,pay_type,proID,bookID,pay,number,money,payDay,days,proName,bookName FROM day_pay WHERE staffID='%s' AND date='%s'",W2A(staff.strStaffID),W2A(day.strDate));
+				sprintf(sql, "SELECT money FROM day_pay WHERE staffID='%s' AND date='%s'",W2A(staff.strStaffID),W2A(day.strDate));
 				sqlite3_stmt *stmt = NULL;
 				int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
 				if (result == SQLITE_OK)
@@ -2356,7 +2359,7 @@ bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root)
 					{
 						Json::Value one3;
 						CString str;
-						one3[MPAYMSG[EM_GET_MPAY_ID]] = sqlite3_column_int(stmt, 0);
+						/*one3[MPAYMSG[EM_GET_MPAY_ID]] = sqlite3_column_int(stmt, 0);
 						DAYPAY_TYPE type = (DAYPAY_TYPE)sqlite3_column_int(stmt, 1);
 						one3[MPAYMSG[EM_GET_MPAY_TYPE]] = type;
 						if (type == DAYPAY_TYPE_DAY)
@@ -2374,8 +2377,8 @@ bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root)
 							one3[MPAYMSG[EM_GET_MPAY_PRONAME]] = g_Globle.UTF8ToEncode(tmp);
 							char* tmp2 = (char*)sqlite3_column_text(stmt, 10);
 							one3[MPAYMSG[EM_GET_MPAY_BOOKNAME]] = g_Globle.UTF8ToEncode(tmp2);
-						}
-						one3[MPAYMSG[EM_GET_MPAY_MONEY]] = (char*)sqlite3_column_text(stmt, 6);
+						}*/
+						one3[MPAYMSG[EM_GET_MPAY_MONEY]] = (char*)sqlite3_column_text(stmt, 0);
 						one2[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one3);
 					}
 				}

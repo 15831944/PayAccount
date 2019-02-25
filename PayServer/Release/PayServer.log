@@ -1,17 +1,354 @@
-﻿生成启动时间为 2019/2/19 16:41:42。
+﻿生成启动时间为 2019/2/25 10:44:31。
      1>项目“D:\PayAccountPro\PayAccount\PayServer\PayServer.vcxproj”在节点 3 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Release\PayServer.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
        ClCompile:
          所有输出均为最新。
-         d:\VS2010\VC\bin\CL.exe /c /ID:\PayAccountPro\PayAccount\PayServer\jsonCpp\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\PayServer.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt PayServerDlg.cpp
-         PayServerDlg.cpp
-     1>PayServerDlg.cpp(504): warning C4018: “<”: 有符号/无符号不匹配
-     1>PayServerDlg.cpp(766): warning C4018: “<”: 有符号/无符号不匹配
-     1>PayServerDlg.cpp(788): warning C4018: “<”: 有符号/无符号不匹配
-     1>PayServerDlg.cpp(837): warning C4018: “<”: 有符号/无符号不匹配
-     1>PayServerDlg.cpp(938): warning C4018: “<”: 有符号/无符号不匹配
-     1>PayServerDlg.cpp(1208): warning C4018: “<”: 有符号/无符号不匹配
+         d:\VS2010\VC\bin\CL.exe /c /ID:\PayAccountPro\PayAccount\PayServer\jsonCpp\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\PayServer.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt dbData.cpp
+         dbData.cpp
+     1>dbData.cpp(22): warning C4150: 删除指向不完整“sqlite3”类型的指针；没有调用析构函数
+                 d:\payaccountpro\payaccount\payserver\sqlite3.h(246) : 参见“sqlite3”的声明
+     1>dbData.cpp(57): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(92): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(121): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(147): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(180): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(220): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(221): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(254): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(255): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(285): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(286): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(287): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(288): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(289): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(290): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(291): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(292): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(300): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(322): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(323): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(349): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(360): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(374): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(385): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(399): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(423): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(452): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(487): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(488): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(489): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(490): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(491): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(492): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(500): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(518): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(520): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(542): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(546): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(590): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(644): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(679): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(722): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(752): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(782): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(783): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(784): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(785): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(786): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(787): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(788): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(789): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(790): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(791): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(800): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(815): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(826): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(857): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(859): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(865): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(867): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(875): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(877): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(882): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(884): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(910): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(912): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(917): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(919): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(927): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(929): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(934): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(936): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(973): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+                 d:\VS2010\VC\include\stdlib.h(867) : 参见“itoa”的声明
+     1>dbData.cpp(998): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1000): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1016): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+                 d:\VS2010\VC\include\stdlib.h(867) : 参见“itoa”的声明
+     1>dbData.cpp(1038): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1080): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1110): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1139): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1164): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1187): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1219): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1247): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1276): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1304): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1305): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1306): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1307): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1308): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1309): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1310): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1311): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1312): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1313): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1314): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1315): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1316): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1317): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1318): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1319): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1320): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1321): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1322): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1323): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1324): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1325): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1326): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1327): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1328): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1329): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1350): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1352): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1369): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+                 d:\VS2010\VC\include\stdlib.h(867) : 参见“itoa”的声明
+     1>dbData.cpp(1398): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1399): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1400): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1401): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1402): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1403): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1404): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1405): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1406): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1407): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1408): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1409): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1416): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(1432): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1453): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1527): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1549): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1582): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1583): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1587): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1588): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1592): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1593): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1597): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1598): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1602): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1603): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1625): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1702): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1703): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(1725): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1757): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1788): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1815): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1843): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1847): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1851): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1878): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1962): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1964): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(1966): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2038): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2042): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2054): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(2070): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2081): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(2097): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2108): warning C4101: “e”: 未引用的局部变量
+     1>dbData.cpp(2135): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2136): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(2143): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2144): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\string.h(110) : 参见“strcat”的声明
+     1>dbData.cpp(2169): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2240): warning C4018: “<”: 有符号/无符号不匹配
+     1>dbData.cpp(2246): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2340): warning C4018: “<”: 有符号/无符号不匹配
+     1>dbData.cpp(2346): warning C4018: “<”: 有符号/无符号不匹配
+     1>dbData.cpp(2352): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2405): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2421): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2460): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2488): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>dbData.cpp(2520): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
        ResourceCompile:
          所有输出均为最新。
        Link:
@@ -37,4 +374,4 @@
 
 生成成功。
 
-已用时间 00:00:05.82
+已用时间 00:00:07.90

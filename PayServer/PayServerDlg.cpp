@@ -16,7 +16,7 @@
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 DWORD WINAPI RecvThread(LPVOID lpParam);
-DWORD WINAPI ClientThread(LPVOID lpParam);
+UINT WINAPI ClientThread(LPVOID lpParam);
 
 CPayServerDlg* g_PaySerDlg=NULL;
 class CAboutDlg : public CDialogEx
@@ -56,6 +56,7 @@ CPayServerDlg::CPayServerDlg(CWnd* pParent /*=NULL*/)
 	m_SocketHandle=INVALID_HANDLE_VALUE;
 	m_bExit = FALSE;
 	m_mutex = CreateMutex(NULL, FALSE, NULL);
+	m_sendMutex=CreateMutex(NULL, FALSE, NULL);
 }
 
 void CPayServerDlg::DoDataExchange(CDataExchange* pDX)
@@ -341,7 +342,7 @@ void CPayServerDlg::DeleteClient(Node* pnode)
 		{
 			CString str;
 			USES_CONVERSION;
-			str.Format(L"%s 断开",A2W(inet_ntoa(pnode->Addr.sin_addr)));
+			str.Format(L"%d 断开",pnode->nThreadID);
 			AddString(str);
 
 			closesocket((*it)->s);
@@ -380,18 +381,7 @@ bool CPayServerDlg::AddClientList(SOCKET s,sockaddr_in addr)
 	node->s=s;
 	node->Addr=addr;
 
-	WaitForSingleObject(m_mutex, INFINITE);
-	m_vNode.push_back(node);
-	ReleaseMutex(m_mutex); 
-
-	CString str;
-	str.Format(L"%s 连入",A2W(inet_ntoa(node->Addr.sin_addr)));
-	AddString(str);
-
-	str.Format(L"当前连接数：%d",m_vNode.size());
-	SetDlgItemText(IDC_STA,str);
-
-	vector<Node*>::iterator it;
+	/*vector<Node*>::iterator it;
 	for(it=m_vNode.begin();it!=m_vNode.end();)
 	{
 		if ((*it)->s == node->s)
@@ -402,20 +392,30 @@ bool CPayServerDlg::AddClientList(SOCKET s,sockaddr_in addr)
 		{
 			++it;
 		}
-	}
+	}*/
 
 	HANDLE hThread = NULL;
-	DWORD ThreadID = 0;
-	hThread = CreateThread(NULL,0,ClientThread,(LPVOID)node,0,&ThreadID);
+	unsigned int ThreadID = 0;
+	hThread = (HANDLE) _beginthreadex( NULL, 0, ClientThread, node, CREATE_SUSPENDED,&ThreadID);
 	if (hThread==NULL)
 	{
-		g_PaySerDlg->DeleteClient(node);
 		return false;
 	}
 	else
 	{
-		(*it)->nThreadID=ThreadID;
-		(*it)->hHandle = hThread;
+		node->nThreadID=ThreadID;
+		node->hHandle = hThread;
+		WaitForSingleObject(m_mutex, INFINITE);
+		m_vNode.push_back(node);
+		ReleaseMutex(m_mutex); 
+
+		CString str;
+		str.Format(L"%d 连入",ThreadID);
+		AddString(str);
+
+		str.Format(L"当前连接数：%d",m_vNode.size());
+		SetDlgItemText(IDC_STA,str);
+		ResumeThread(hThread);
 	}
 	return true;
 }
@@ -666,10 +666,11 @@ void CPayServerDlg::DoRun(string strData,Json::Value& js,Node* pnode)
 				CString strIdCard = A2T(root[CMD_ADDSTAFF[EM_ADD_STAFF_IDCARD]].asCString());
 				CString strTel = A2T(root[CMD_ADDSTAFF[EM_ADD_STAFF_TEL]].asCString());
 				STAFF_TYPE type = (STAFF_TYPE)root[CMD_ADDSTAFF[EM_ADD_STAFF_TYPE]].asInt();
+				int sort = root[CMD_ADDSTAFF[EM_ADD_STAFF_SORT]].asInt();
 				if(cmd == SOCK_CMD_ADD_STAFF)
-				    bRet=theApp.m_dbData->AddStaff(strName,strSex,age,strStaffID,strIdCard,strTel,type);
+				    bRet=theApp.m_dbData->AddStaff(strName,strSex,age,strStaffID,strIdCard,strTel,type,sort);
 				else if(cmd == SOCK_CMD_MDF_STAFF)
-					bRet=theApp.m_dbData->ModifyStaff(strName,strSex,age,strStaffID,strIdCard,strTel,type);
+					bRet=theApp.m_dbData->ModifyStaff(strName,strSex,age,strStaffID,strIdCard,strTel,type,sort);
 			}
 			break;
 		case SOCK_CMD_GET_DAIPAY:
@@ -848,7 +849,7 @@ void CPayServerDlg::DoRun(string strData,Json::Value& js,Node* pnode)
 								stu.proID = vle[i][DAYPAYMSG[EM_DAYPAY_MSG_PROID]].asInt();
 								stu.strBookID = vle[i][DAYPAYMSG[EM_DAYPAY_MSG_BOOKID]].asCString();
 								stu.pay = vle[i][DAYPAYMSG[EM_DAYPAY_MSG_PAY]].asCString();
-								stu.number = vle[i][DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]].asInt();
+								stu.number = vle[i][DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]].asDouble();
 								stu.strProName = vle[i][DAYPAYMSG[EM_DAYPAY_MSG_PRONAME]].asCString();
 								stu.strBookName = vle[i][DAYPAYMSG[EM_DAYPAY_MSG_BOOKNAME]].asCString();
 							}
@@ -890,54 +891,59 @@ void CPayServerDlg::DoRun(string strData,Json::Value& js,Node* pnode)
 
 void CPayServerDlg::SendTo(SOCKET sock,Json::Value js)
 {
-	Json::FastWriter writer;  
-	string strData = writer.write(js);
-	string tr = strData.substr(strData.length()-1,1);
-	if (tr=="\n")
+	WaitForSingleObject(m_sendMutex, INFINITE);
+	do 
 	{
-		strData = strData.substr(0,strData.length()-1);
-	}
-
-	long AllLen = 0;
-	char* sendBuf = g_Globle.CombineSendData(strData,AllLen);
-	if(sendBuf == NULL)
-	{
-		AddString(L"sendBuf is null!");
-		return;
-	}
-	if (AllLen >= MAXBUFFLEN)
-	{
-		CString str;
-		str.Format(L"发送报文长度：%d,已超出最大接收长度，发送失败！",AllLen);
-		g_PaySerDlg->AddString(str);
-		return;
-	}
-
-	DWORD NumberOfBytesSent = 0;
-	DWORD dwBytesSent = 0;
-	WSABUF Buffers;
-	int  Ret = 0;
-
-	if (sock)
-	{
-		do
+		Json::FastWriter writer;  
+		string strData = writer.write(js);
+		string tr = strData.substr(strData.length()-1,1);
+		if (tr=="\n")
 		{
-			Buffers.buf = sendBuf;
-			Buffers.len = AllLen;//strlen(szResponse)遇到0x00会中断
-			Ret = WSASend(sock,&Buffers,1,&NumberOfBytesSent,0,0,NULL);  
-			if(SOCKET_ERROR != Ret)
-				dwBytesSent += NumberOfBytesSent;
-			else
-			{
-				CString str;
-				str.Format(L"send error：%s",strData);
-				AddString(str);
-				break;
-			}
+			strData = strData.substr(0,strData.length()-1);
 		}
-		while((dwBytesSent < AllLen) && SOCKET_ERROR != Ret);
-	}
-	delete[] sendBuf;
+
+		long AllLen = 0;
+		char* sendBuf = g_Globle.CombineSendData(strData,AllLen);
+		if(sendBuf == NULL)
+		{
+			AddString(L"sendBuf is null!");
+			break;
+		}
+		if (AllLen >= MAXBUFFLEN)
+		{
+			CString str;
+			str.Format(L"发送报文长度：%d,已超出最大接收长度，发送失败！",AllLen);
+			g_PaySerDlg->AddString(str);
+			break;
+		}
+
+		DWORD NumberOfBytesSent = 0;
+		DWORD dwBytesSent = 0;
+		WSABUF Buffers;
+		int  Ret = 0;
+
+		if (sock)
+		{
+			do
+			{
+				Buffers.buf = sendBuf;
+				Buffers.len = AllLen;//strlen(szResponse)遇到0x00会中断
+				Ret = WSASend(sock,&Buffers,1,&NumberOfBytesSent,0,0,NULL);  
+				if(SOCKET_ERROR != Ret)
+					dwBytesSent += NumberOfBytesSent;
+				else
+				{
+					CString str;
+					str.Format(L"send error：%s",strData.c_str());
+					AddString(str);
+					break;
+				}
+			}
+			while((dwBytesSent < AllLen) && SOCKET_ERROR != Ret);
+		}
+		delete[] sendBuf;
+	} while (0);
+	ReleaseMutex(m_sendMutex); 
 }
 
 DWORD WINAPI RecvThread(LPVOID lpParam)
@@ -1025,7 +1031,7 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 	return 0;
 }
 
-DWORD WINAPI ClientThread(LPVOID lpParam)
+UINT WINAPI ClientThread(LPVOID lpParam)
 {
 	CString str;
 	Node* pnode = (Node*)lpParam;
@@ -1096,7 +1102,8 @@ DWORD WINAPI ClientThread(LPVOID lpParam)
 				byte start = szRequest[0];
 				if (start != MSG_BEGN)
 				{
-					g_PaySerDlg->AddString(L"报文头错误,强制关闭连接！");
+					str.Format(L"报文头错误,强制关闭连接！revLen=%d NumberOfBytesRecvd=%d",revLen,NumberOfBytesRecvd);
+					g_PaySerDlg->AddString(str);
 					break;
 				}
 				else if (revLen<5)//报文头还没接收完

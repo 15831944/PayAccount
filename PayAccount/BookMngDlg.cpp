@@ -475,13 +475,13 @@ void CBookMngDlg::MdfBook()
 	CAddBookDlg dlg;
 	dlg.SetNotifyWnd(this);
 	int ret = dlg.DoModal();
+	g_SockClient.SetCallback(BookMngCallback,this);
 	if(ret==IDOK)
 	{
 		//通知添加了图书,请相关页面更新数据
-		g_PayAccountDlg->SendMessageW(WM_VDATAUPDATE);
+		//g_PayAccountDlg->SendMessageW(WM_VDATAUPDATE);
+		OnBnClickedButton1();
 	}
-	g_SockClient.SetCallback(BookMngCallback,this);
-	OnBnClickedButton1();
 }
 
 void CBookMngDlg::OnSize(UINT nType, int cx, int cy)

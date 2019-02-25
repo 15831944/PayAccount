@@ -85,6 +85,7 @@ public:
 	CListCtrl m_listCtrl;
 	CStatic m_staIP;
 	HANDLE m_mutex;
+	HANDLE m_sendMutex;
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedBtnHide();
 	CButton m_ckRun;

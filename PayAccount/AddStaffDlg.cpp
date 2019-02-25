@@ -175,6 +175,8 @@ void CAddStaffDlg::SendToAddStaff()
 	GetDlgItemText(IDC_TEL,strTel);
 	STAFF_TYPE type = (STAFF_TYPE)m_comboType.GetCurSel();
 
+	int sort = GetDlgItemInt(IDC_SORT);
+
 	//Éú³ÉÎ¨Ò»ID
 	CTime time_now;
 	time_now = CTime::GetCurrentTime();
@@ -190,13 +192,14 @@ void CAddStaffDlg::SendToAddStaff()
 	root[CMD_ADDSTAFF[EM_ADD_STAFF_IDCARD]]=T2A(strID);
 	root[CMD_ADDSTAFF[EM_ADD_STAFF_TEL]]=T2A(strTel);
 	root[CMD_ADDSTAFF[EM_ADD_STAFF_TYPE]]=type;
+	root[CMD_ADDSTAFF[EM_ADD_STAFF_SORT]]=sort;
 	Json::FastWriter writer;  
 	string temp = writer.write(root);
 	g_SockClient.SendTo(temp);
 
 }
 
-void CAddStaffDlg::SendToMdfStaff(CString strName,CString strSex,int age,CString strStaffID, CString strIdcard,CString strTel,STAFF_TYPE type)
+void CAddStaffDlg::SendToMdfStaff(CString strName,CString strSex,int age,CString strStaffID, CString strIdcard,CString strTel,STAFF_TYPE type,int sort)
 {
 	USES_CONVERSION;
 	Json::Value root;
@@ -208,6 +211,7 @@ void CAddStaffDlg::SendToMdfStaff(CString strName,CString strSex,int age,CString
 	root[CMD_ADDSTAFF[EM_ADD_STAFF_IDCARD]]=T2A(strIdcard);
 	root[CMD_ADDSTAFF[EM_ADD_STAFF_TEL]]=T2A(strTel);
 	root[CMD_ADDSTAFF[EM_ADD_STAFF_TYPE]]=type;
+	root[CMD_ADDSTAFF[EM_ADD_STAFF_SORT]]=sort;
 	Json::FastWriter writer;  
 	string temp = writer.write(root);
 	g_SockClient.SendTo(temp);
@@ -255,6 +259,8 @@ void CAddStaffDlg::OnBnClickedOk()
 		return;
 	}
 
+	int sort = GetDlgItemInt(IDC_SORT);
+
 	if(m_bAdd)
 		SendToJudgeStaff(strID);
 	else
@@ -265,7 +271,7 @@ void CAddStaffDlg::OnBnClickedOk()
 			return;
 		}
 		CString strStaffID = m_dlg->m_vet[m_ndex].strStaffID;
-		SendToMdfStaff(strName,strSex,age,strStaffID,strID,strTel,type);
+		SendToMdfStaff(strName,strSex,age,strStaffID,strID,strTel,type,sort);
 	}
 }
 
@@ -291,6 +297,7 @@ void CAddStaffDlg::SetModifyInit()
 	CString strtell=m_dlg->m_ListCtrl.GetItemText(m_dlg->m_nItem,6);
 	SetDlgItemText(IDC_TEL,strtell);
 	CString strType = m_dlg->m_ListCtrl.GetItemText(m_dlg->m_nItem, 7);
+	SetDlgItemInt(IDC_SORT,m_dlg->m_vet[m_ndex].sort);
 	for (int i =0;i<STAFF_TYPE_MAX;i++)
 	{
 		if (strType == StaffType[i])

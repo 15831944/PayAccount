@@ -365,7 +365,7 @@ void CDayCheckDlg::GetDayPay(Json::Value root)
 					stu.proID = js[i][DAYPAYMSG[EM_DAYPAY_MSG_PROID]].asInt();
 					stu.strBookID = js[i][DAYPAYMSG[EM_DAYPAY_MSG_BOOKID]].asCString();
 					stu.pay = js[i][DAYPAYMSG[EM_DAYPAY_MSG_PAY]].asCString();
-					stu.number = js[i][DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]].asInt();
+					stu.number = js[i][DAYPAYMSG[EM_DAYPAY_MSG_NUMBER]].asDouble();
 					stu.strProName = js[i][DAYPAYMSG[EM_DAYPAY_MSG_PRONAME]].asCString();
 					stu.strBookName = js[i][DAYPAYMSG[EM_DAYPAY_MSG_BOOKNAME]].asCString();
 				}		
@@ -443,7 +443,7 @@ void CDayCheckDlg::SetListCtrlValue()
 			m_ListCtrl.SetItemText(ndex, 1, strVdex);//项目
 			m_ListCtrl.SetItemText(ndex, 2, strVdex);//图书
 			m_ListCtrl.SetItemText(ndex, 3, m_vCal[i].pay);//单价
-			str.Format(L"%d", m_vCal[i].number);
+			str.Format(L"%.1f", m_vCal[i].number);
 			m_ListCtrl.SetItemText(ndex, 4, str);//件数
 			m_ListCtrl.SetItemText(ndex, 5, m_vCal[i].money);//金额
 			str.Format(L"%d", m_vCal[i].id);
@@ -575,7 +575,7 @@ void CDayCheckDlg::OnBnClickedBtnSave()
 		cal.pay = m_ListCtrl.GetItemText(line.nItem, 3);
 		CString strNumber;
 		line.pEdit->GetWindowText(strNumber);
-		cal.number = _ttoi(strNumber);
+		cal.number = _ttof(strNumber);
 		if (cal.number>0)
 		{
 			cal.money = m_ListCtrl.GetItemText(line.nItem, 5);

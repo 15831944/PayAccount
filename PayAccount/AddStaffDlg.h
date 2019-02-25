@@ -39,6 +39,6 @@ public:
 	void SetNotifyWnd(CStaffMngDlg* dlg);
 	void SendToJudgeStaff(CString strIdcard);
 	void SendToAddStaff();
-	void SendToMdfStaff(CString strName,CString strSex,int age,CString strStaffID, CString strIdcard,CString strTel,STAFF_TYPE type);
+	void SendToMdfStaff(CString strName,CString strSex,int age,CString strStaffID, CString strIdcard,CString strTel,STAFF_TYPE type,int sort);
 	CComboBox m_comboType;
 };

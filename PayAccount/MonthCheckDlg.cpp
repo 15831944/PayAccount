@@ -102,6 +102,29 @@ void CMonthCheckDlg::GetStaff(Json::Value root)
 				stu.strname = js[i][CMD_STAFFMSG[EM_STAFF_MSG_NAME]].asCString();
 				stu.strStaffID = js[i][CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]].asCString();
 				m_vet.push_back(stu);
+				/*
+				stu.nFirstAscii = g_Globle.GetFirstAsciiValue(stu.strname);
+				if (m_vet.size() == 0)
+				{
+					m_vet.push_back(stu);
+				}
+				else
+				{
+					bool bInset=false;
+					vector <STAFF_STU>::iterator it;
+					for ( it = m_vet.begin( ) ; it != m_vet.end( ) ; it++ )
+					{
+						if (stu.nFirstAscii<(*it).nFirstAscii)
+						{
+							bInset = true;
+							m_vet.insert(it,stu);
+							break;
+						}
+					}
+					if(!bInset)
+						m_vet.push_back(stu);
+				}
+				*/
 			}
 		}
 	}
@@ -137,7 +160,7 @@ void CMonthCheckDlg::GetMonthPay(Json::Value root)
 						{
 							Json::Value one3 = ones3[k];
 							DAYPAY day_pay;
-							day_pay.id = one3[MPAYMSG[EM_GET_MPAY_ID]].asInt();
+							/*day_pay.id = one3[MPAYMSG[EM_GET_MPAY_ID]].asInt();
 							day_pay.type = (DAYPAY_TYPE)one3[MPAYMSG[EM_GET_MPAY_TYPE]].asInt();
 							if (day_pay.type == DAYPAY_TYPE_DAY)
 							{
@@ -152,7 +175,7 @@ void CMonthCheckDlg::GetMonthPay(Json::Value root)
 								day_pay.number = one3[MPAYMSG[EM_GET_MPAY_NUMBER]].asInt();
 								day_pay.strProName = one3[MPAYMSG[EM_GET_MPAY_PRONAME]].asCString();
 								day_pay.strBookName = one3[MPAYMSG[EM_GET_MPAY_BOOKNAME]].asCString();
-							}
+							}*/
 							day_pay.money = one3[MPAYMSG[EM_GET_MPAY_MONEY]].asCString();
 							day.v_daypay.push_back(day_pay);
 						}

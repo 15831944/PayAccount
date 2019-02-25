@@ -36,7 +36,6 @@
 #define IDD_ADD_PRO                     151
 #define IDD_STAFF_WRITE                 152
 #define IDD_SET_ADRESS                  153
-#define IDD_DIALOG2                     154
 #define IDD_WORKCAL                     154
 #define IDC_STAFF_FIND                  1001
 #define IDC_SIZE                        1001
@@ -56,6 +55,8 @@
 #define IDC_KB                          1007
 #define IDC_TYPE                        1007
 #define IDC_BUTTON2                     1008
+#define IDC_AGE2                        1008
+#define IDC_SORT                        1008
 #define IDC_LIST1                       1009
 #define IDC_COMBO1                      1010
 #define IDC_KEYWORD                     1011

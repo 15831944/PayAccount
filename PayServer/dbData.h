@@ -22,8 +22,8 @@ public:
 	CString GetTimeNow();
 
 	//Ö°¹¤
-	bool AddStaff(CString strName,CString strSex,int age,CString strStaffID, CString idcard,CString strTel,int type);
-	bool ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type);
+	bool AddStaff(CString strName,CString strSex,int age,CString strStaffID, CString idcard,CString strTel,int type,int sort);
+	bool ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort);
 	bool DelStaff(CString strStaffID);
 	bool _JudgeStaff(CString idcard, Json::Value& root);
 	bool GetStaffs(CString strKeyWord,Json::Value& root,int nstart = 0,int number = 20);

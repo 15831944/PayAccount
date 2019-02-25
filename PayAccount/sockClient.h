@@ -42,6 +42,7 @@ public:
 	int SendTo(string strData,long len = 0);
 	void DoRun(string strData);
 public:
+	HANDLE           m_mutex;
 	HANDLE           m_RecvHandle;
 	HANDLE           m_HeardHandle;
 	BOOL             m_bConnect;// «∑Ò¡¨Ω”

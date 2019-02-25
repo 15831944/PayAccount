@@ -164,6 +164,7 @@ const char CMD_STAFFMSG[EM_STAFF_MSG_MAX][CMD_CHAR_MAX]=
 	"intime",
 	"tel",
 	"type",
+	"sort",
 	"count"
 };
 
@@ -186,7 +187,8 @@ const char CMD_ADDSTAFF[EM_ADD_STAFF_MAX][CMD_CHAR_MAX]=
 	"staffid",
 	"idcard",
 	"tel",
-	"type"
+	"type",
+	"sort"
 };
 
 const char CMD_DAIPAY[EM_DAI_PAY_MAX][CMD_CHAR_MAX]=

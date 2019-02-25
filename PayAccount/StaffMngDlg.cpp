@@ -170,7 +170,31 @@ void CStaffMngDlg::GetStaff(Json::Value root)
 				stu.strInTime = js[i][CMD_STAFFMSG[EM_STAFF_MSG_INTIME]].asCString();
 				stu.strTel = js[i][CMD_STAFFMSG[EM_STAFF_MSG_TEL]].asCString();
 				stu.type = (STAFF_TYPE)js[i][CMD_STAFFMSG[EM_STAFF_MSG_TYPE]].asInt();
+				stu.sort = js[i][CMD_STAFFMSG[EM_STAFF_MSG_SORT]].asInt();
 				m_vet.push_back(stu);
+				/*//ºº×ÖÅÅÐò
+				stu.nFirstAscii = g_Globle.GetFirstAsciiValue(stu.strname);
+				if (m_vet.size() == 0)
+				{
+					m_vet.push_back(stu);
+				}
+				else
+				{
+					bool bInset=false;
+					vector <STAFF_STU>::iterator it;
+					for ( it = m_vet.begin( ) ; it != m_vet.end( ) ; it++ )
+					{
+						if (stu.nFirstAscii<(*it).nFirstAscii)
+						{
+							bInset = true;
+							m_vet.insert(it,stu);
+							break;
+						}
+					}
+					if(!bInset)
+						m_vet.push_back(stu);
+				}
+				*/
 			}
 		}
 	}

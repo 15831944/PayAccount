@@ -10,7 +10,7 @@ DWORD WINAPI HeardThread(LPVOID lpParam);
 
 SockClient::SockClient()
 {
-	
+	m_mutex = CreateMutex(NULL, FALSE, NULL);
 	m_RecvHandle=INVALID_HANDLE_VALUE;
 	m_HeardHandle=INVALID_HANDLE_VALUE;
 	m_bConnect = FALSE;
@@ -76,6 +76,13 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_NETERROR:
 		{
+#ifdef DEBUG
+			int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"错误",MB_RETRYCANCEL);
+			if(ret==IDRETRY)
+			{
+				Start(TRUE);
+			}
+#else
 			if (m_TryTime <= 2)
 			{
 				Start();
@@ -88,6 +95,7 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 					Start(TRUE);
 				}
 			}
+#endif
 			break;
 		}
 	case SOCK_ERROR_OUTMAXBUFF:
@@ -104,13 +112,17 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_START:
 		{
-			//MessageBox(L"报文头错误！",L"错误");
+#ifdef DEBUG
+			MessageBox(L"报文头错误！",L"错误");
+#endif
 			Start();
 			break;
 		}
 	case SOCK_ERROR_END:
 		{
-			//MessageBox(L"报文尾错误！",L"错误");
+#ifdef DEBUG
+			MessageBox(L"报文尾错误！",L"错误");
+#endif
 			Start();
 			break;
 		}
@@ -222,6 +234,15 @@ bool SockClient::Start(BOOL bShowMsgBox)
 	}
 	else
 	{
+#ifdef DEBUG
+		int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"错误",MB_RETRYCANCEL);
+		if(ret==IDRETRY)
+		{
+			return Start(TRUE);
+		}
+		else
+			return false;
+#else
 		if (!bShowMsgBox && m_TryTime<=2)
 		{
 			Sleep(100);
@@ -238,6 +259,7 @@ bool SockClient::Start(BOOL bShowMsgBox)
 			else
 				return false;
 		}
+#endif
 	}
 }
 
@@ -276,56 +298,62 @@ DWORD WINAPI HeardThread(LPVOID lpParam)
 
 int SockClient::SendTo(string strData,long len)
 {
-	string tr = strData.substr(strData.length()-1,1);
-	if (tr=="\n")
-	{
-		strData = strData.substr(0,strData.length()-1);
-	}
-
-	long AllLen = 0;
-	char* sendBuf = g_Globle.CombineSendData(strData,AllLen);
-	if(sendBuf == NULL)
-	{
-		MessageBox(L"sendBuf NULL!",L"错误");
-		return -1;
-	}
-	else if (AllLen > MAXBUFFLEN)
-	{
-		MessageBox(L"请求失败，原因：发送数据长度已超出最大定义长度！",L"错误");
-		return 0;
-	}
-	else
-	{
-		byte start = sendBuf[0];
-		if (start != MSG_BEGN)
-		{
-			MessageBox(L"报文头错误,终止发送请求！");
-			return 0;
-		}
-	}
-
-	DWORD NumberOfBytesSent = 0;
-	DWORD dwBytesSent = 0;
-	WSABUF Buffers;
 	int  Ret = 0;
-
-	if (g_CliSock != INVALID_SOCKET)
+	WaitForSingleObject(m_mutex, INFINITE);
+	do 
 	{
-		do
+		string tr = strData.substr(strData.length()-1,1);
+		if (tr=="\n")
 		{
-			Buffers.buf = sendBuf;
-			Buffers.len = AllLen;//strlen(szResponse)遇到0x00会中断
-			Ret = WSASend(g_CliSock,&Buffers,1,&NumberOfBytesSent,0,0,NULL);  
-			if(SOCKET_ERROR != Ret)
-				dwBytesSent += NumberOfBytesSent;
-			else
-				break;
+			strData = strData.substr(0,strData.length()-1);
 		}
-		while((dwBytesSent < AllLen) && SOCKET_ERROR != Ret);
-	}
-	else
-		Ret = -2;
-	delete[] sendBuf;
+
+		long AllLen = 0;
+		char* sendBuf = g_Globle.CombineSendData(strData,AllLen);
+		if(sendBuf == NULL)
+		{
+			MessageBox(L"sendBuf NULL!",L"错误");
+			break;
+		}
+		else if (AllLen > MAXBUFFLEN)
+		{
+			MessageBox(L"请求失败，原因：发送数据长度已超出最大定义长度！",L"错误");
+			break;
+		}
+		else
+		{
+			byte start = sendBuf[0];
+			if (start != MSG_BEGN)
+			{
+				MessageBox(L"报文头错误,终止发送请求！");
+				break;
+			}
+		}
+
+		DWORD NumberOfBytesSent = 0;
+		DWORD dwBytesSent = 0;
+		WSABUF Buffers;
+
+		if (g_CliSock != INVALID_SOCKET)
+		{
+			do
+			{
+				Buffers.buf = sendBuf;
+				Buffers.len = AllLen;//strlen(szResponse)遇到0x00会中断
+				Ret = WSASend(g_CliSock,&Buffers,1,&NumberOfBytesSent,0,0,NULL);  
+				if(SOCKET_ERROR != Ret)
+					dwBytesSent += NumberOfBytesSent;
+				else
+					break;
+			}
+			while((dwBytesSent < AllLen) && SOCKET_ERROR != Ret);
+		}
+		else
+			Ret = -2;
+		delete[] sendBuf;
+	} while (0);
+	
+	ReleaseMutex(m_mutex); 
 	return Ret;
 }
 
