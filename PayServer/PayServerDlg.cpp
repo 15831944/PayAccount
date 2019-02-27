@@ -1102,7 +1102,7 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 				byte start = szRequest[0];
 				if (start != MSG_BEGN)
 				{
-					str.Format(L"报文头错误,强制关闭连接！revLen=%d NumberOfBytesRecvd=%d",revLen,NumberOfBytesRecvd);
+					str.Format(L"报文头错误,%s 强制关闭连接！revLen=%d NumberOfBytesRecvd=%d",pnode->strUser,revLen,NumberOfBytesRecvd);
 					g_PaySerDlg->AddString(str);
 					break;
 				}
