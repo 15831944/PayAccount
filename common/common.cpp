@@ -165,6 +165,7 @@ const char CMD_STAFFMSG[EM_STAFF_MSG_MAX][CMD_CHAR_MAX]=
 	"tel",
 	"type",
 	"sort",
+	"daypay",
 	"count"
 };
 
@@ -177,18 +178,6 @@ const char CMD_JUDGESTAFF[EM_JUDGE_STAFF_MAX][CMD_CHAR_MAX]=
 {
 	"idcard",
 	"bhad"
-};
-
-const char CMD_ADDSTAFF[EM_ADD_STAFF_MAX][CMD_CHAR_MAX]=
-{
-	"name",
-	"sex",
-	"age",
-	"staffid",
-	"idcard",
-	"tel",
-	"type",
-	"sort"
 };
 
 const char CMD_DAIPAY[EM_DAI_PAY_MAX][CMD_CHAR_MAX]=

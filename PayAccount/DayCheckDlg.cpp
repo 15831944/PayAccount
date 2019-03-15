@@ -42,6 +42,17 @@ LRESULT CDayCheckDlg::OnCallBack(WPARAM wParam, LPARAM lParam)
 
 	switch (cmd)
 	{
+	case SOCK_CMD_GET_DPAY:
+		{
+			if (ret == NET_CMD_FAIL)
+				MessageBox(L"获取日薪失败！",L"错误");
+			else
+			{
+				GetDPay(root);
+				SendToGetBook();
+			}
+		}
+		break;
 	case SOCK_CMD_GET_SAMPLE_BOOK:
 		{
 			if (ret == NET_CMD_FAIL)
@@ -196,6 +207,17 @@ void CDayCheckDlg::SetNotifyWnd(CWorkCalDlg* pdata,CString strDate)
 	m_strDate = strDate;
 }
 
+void CDayCheckDlg::SendToGetDPay()
+{
+	USES_CONVERSION;
+	Json::Value root;
+	root[CONNECT_CMD]=SOCK_CMD_GET_DPAY;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]] = T2A(m_strStaffID);
+	Json::FastWriter writer;  
+	string temp = writer.write(root);
+	g_SockClient.SendTo(temp);
+}
+
 void CDayCheckDlg::SendToGetBook()
 {
 	USES_CONVERSION;
@@ -298,6 +320,14 @@ void CDayCheckDlg::SendToSaveDayPay()
 	{
 		MessageBox(L"保存成功！",L"提示");
 	}
+}
+
+void CDayCheckDlg::GetDPay(Json::Value root)
+{
+	m_fDaypay = root[CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]].asDouble();
+	CString str;
+	str.Format(L"%.04f",m_fDaypay);
+	SetDlgItemText(IDC_EDIT_PER,str);
 }
 
 void CDayCheckDlg::GetBook(Json::Value root)
@@ -421,7 +451,7 @@ void CDayCheckDlg::UpdateDlg()
 	}
 	//设置回调
 	g_SockClient.SetCallback(DayCheckCallback,this);
-	SendToGetBook();
+	SendToGetDPay();
 }
 
 void CDayCheckDlg::SetListCtrlValue()
@@ -429,7 +459,7 @@ void CDayCheckDlg::SetListCtrlValue()
 	//4.控件赋值
 	SetAllPayCtrl(DAYPAY_TYPE_MAX,0);
 	m_ListCtrl.DeleteAllItems();
-	SetDlgItemText(IDC_EDIT_PER,  L"");
+	//SetDlgItemText(IDC_EDIT_PER,  L"");
 	SetDlgItemText(IDC_EDIT_DAY,  L"");
 	int ndex=0;
 	for (int i = 0; i < m_vCal.size(); i++)
@@ -455,7 +485,8 @@ void CDayCheckDlg::SetListCtrlValue()
 			SetDlgItemText(IDC_EDIT_PER, m_vCal[i].strPayDay);
 			SetDlgItemText(IDC_EDIT_DAY, m_vCal[i].strDays);
 
-			double money = _ttof(m_vCal[i].strPayDay) * _ttof(m_vCal[i].strDays);
+			//double money = _ttof(m_vCal[i].strPayDay) * _ttof(m_vCal[i].strDays);
+			double money = _ttof(m_vCal[i].money);
 			SetAllPayCtrl(DAYPAY_TYPE_DAY, money);
 		}
 	}

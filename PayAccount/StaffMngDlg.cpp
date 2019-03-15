@@ -109,12 +109,12 @@ BOOL CStaffMngDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	TCHAR rgtsz[8][10] = { _T("序号"), _T("姓名"), _T("性别"), _T("年龄"), _T("身份证"), _T("入职时间"), _T("联系方式"), _T("类型") };
+	TCHAR rgtsz[9][10] = { _T("序号"), _T("姓名"), _T("性别"), _T("年龄"), _T("身份证"), _T("入职时间"), _T("联系方式"), _T("类型"), _T("日薪") };
 
 	LV_COLUMN lvcolumn;
 	CRect rect;
 	m_ListCtrl.GetWindowRect(&rect);
-	for (int i=0;i<8;i++)
+	for (int i=0;i<9;i++)
 	{
 		lvcolumn.mask = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT
 			| LVCF_WIDTH | LVCF_ORDER;
@@ -135,7 +135,7 @@ BOOL CStaffMngDlg::OnInitDialog()
 		}
 		else
 		{
-			lvcolumn.cx = (rect.Width()-60*3-100)/4;
+			lvcolumn.cx = (rect.Width()-60*3-100)/5;
 		}
 		m_ListCtrl.InsertColumn(i, &lvcolumn);
 	}
@@ -171,30 +171,8 @@ void CStaffMngDlg::GetStaff(Json::Value root)
 				stu.strTel = js[i][CMD_STAFFMSG[EM_STAFF_MSG_TEL]].asCString();
 				stu.type = (STAFF_TYPE)js[i][CMD_STAFFMSG[EM_STAFF_MSG_TYPE]].asInt();
 				stu.sort = js[i][CMD_STAFFMSG[EM_STAFF_MSG_SORT]].asInt();
+				stu.fDaypay = js[i][CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]].asDouble();
 				m_vet.push_back(stu);
-				/*//汉字排序
-				stu.nFirstAscii = g_Globle.GetFirstAsciiValue(stu.strname);
-				if (m_vet.size() == 0)
-				{
-					m_vet.push_back(stu);
-				}
-				else
-				{
-					bool bInset=false;
-					vector <STAFF_STU>::iterator it;
-					for ( it = m_vet.begin( ) ; it != m_vet.end( ) ; it++ )
-					{
-						if (stu.nFirstAscii<(*it).nFirstAscii)
-						{
-							bInset = true;
-							m_vet.insert(it,stu);
-							break;
-						}
-					}
-					if(!bInset)
-						m_vet.push_back(stu);
-				}
-				*/
 			}
 		}
 	}
@@ -222,6 +200,8 @@ void CStaffMngDlg::SetListCtrlValue()
 		m_ListCtrl.SetItemText(i,6,m_vet[i].strTel);
 		if (m_vet[i].type != STAFF_TYPE_MAX)
 		    m_ListCtrl.SetItemText(i, 7, StaffType[m_vet[i].type]);
+		tmp.Format(L"%.02f",m_vet[i].fDaypay);
+		m_ListCtrl.SetItemText(i,8,tmp);
 		n++;
 	}
 	UpdateData();

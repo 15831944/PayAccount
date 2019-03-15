@@ -29,6 +29,7 @@ protected:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	DECLARE_MESSAGE_MAP()
 public:
+	double  m_fDaypay;
 	CString m_strDate;
 	CString m_strStaffID;
 	CString m_strStaffName;
@@ -58,7 +59,8 @@ public:
 	CStatic m_staticAll;
 	CFont m_font;
 
-	//获取简单图书信息
+	void SendToGetDPay();//获取该职工日薪
+	void GetDPay(Json::Value root);
 	void SendToGetBook();
 	void GetBook(Json::Value root);
 	void SendToGetProject();

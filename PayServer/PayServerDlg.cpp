@@ -650,6 +650,12 @@ void CPayServerDlg::DoRun(string strData,Json::Value& js,Node* pnode)
 				bRet=theApp.m_dbData->DelStaff(strStaffID);
 			}
 			break;
+		case SOCK_CMD_GET_DPAY:
+			{
+				CString strStaffID = A2T(root[CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]].asCString());
+				bRet=theApp.m_dbData->GetDPay(strStaffID,js);
+			}
+			break;
 		case SOCK_CMD_JUDGE_STAFF:
 			{
 				CString strIdcard = A2T(root[CMD_JUDGESTAFF[EM_JUDGE_STAFF_IDCARD]].asCString());
@@ -659,18 +665,19 @@ void CPayServerDlg::DoRun(string strData,Json::Value& js,Node* pnode)
 		case SOCK_CMD_ADD_STAFF:
 		case SOCK_CMD_MDF_STAFF:
 			{
-				CString strName = A2T(root[CMD_ADDSTAFF[EM_ADD_STAFF_NAME]].asCString());
-				CString strSex = A2T(root[CMD_ADDSTAFF[EM_ADD_STAFF_SEX]].asCString());
-				int age = root[CMD_ADDSTAFF[EM_ADD_STAFF_AGE]].asInt();
-				CString strStaffID = A2T(root[CMD_ADDSTAFF[EM_ADD_STAFF_STAFFID]].asCString());
-				CString strIdCard = A2T(root[CMD_ADDSTAFF[EM_ADD_STAFF_IDCARD]].asCString());
-				CString strTel = A2T(root[CMD_ADDSTAFF[EM_ADD_STAFF_TEL]].asCString());
-				STAFF_TYPE type = (STAFF_TYPE)root[CMD_ADDSTAFF[EM_ADD_STAFF_TYPE]].asInt();
-				int sort = root[CMD_ADDSTAFF[EM_ADD_STAFF_SORT]].asInt();
+				CString strName = A2T(root[CMD_STAFFMSG[EM_STAFF_MSG_NAME]].asCString());
+				CString strSex = A2T(root[CMD_STAFFMSG[EM_STAFF_MSG_SEX]].asCString());
+				int age = root[CMD_STAFFMSG[EM_STAFF_MSG_AGE]].asInt();
+				CString strStaffID = A2T(root[CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]].asCString());
+				CString strIdCard = A2T(root[CMD_STAFFMSG[EM_STAFF_MSG_IDCARD]].asCString());
+				CString strTel = A2T(root[CMD_STAFFMSG[EM_STAFF_MSG_TEL]].asCString());
+				STAFF_TYPE type = (STAFF_TYPE)root[CMD_STAFFMSG[EM_STAFF_MSG_TYPE]].asInt();
+				int sort = root[CMD_STAFFMSG[EM_STAFF_MSG_SORT]].asInt();
+				double fDaypay = root[CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]].asDouble();
 				if(cmd == SOCK_CMD_ADD_STAFF)
-				    bRet=theApp.m_dbData->AddStaff(strName,strSex,age,strStaffID,strIdCard,strTel,type,sort);
+				    bRet=theApp.m_dbData->AddStaff(strName,strSex,age,strStaffID,strIdCard,strTel,type,sort,fDaypay);
 				else if(cmd == SOCK_CMD_MDF_STAFF)
-					bRet=theApp.m_dbData->ModifyStaff(strName,strSex,age,strStaffID,strIdCard,strTel,type,sort);
+					bRet=theApp.m_dbData->ModifyStaff(strName,strSex,age,strStaffID,strIdCard,strTel,type,sort,fDaypay);
 			}
 			break;
 		case SOCK_CMD_GET_DAIPAY:
@@ -1060,6 +1067,7 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 	//数据长度
 	long dataLen=0;
 	long   revLen =0;
+	bool bOnePack = false;//第一个报文是否正常,不正常说明是异常连接
 	while (!g_PaySerDlg->m_bExit)
 	{
 		//等待网络事件触发,m_HeardTime没收到任何消息，则启动链路测试
@@ -1102,12 +1110,16 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 				byte start = szRequest[0];
 				if (start != MSG_BEGN)
 				{
-					str.Format(L"报文头错误,%s 强制关闭连接！revLen=%d NumberOfBytesRecvd=%d",pnode->strUser,revLen,NumberOfBytesRecvd);
-					g_PaySerDlg->AddString(str);
+					if (bOnePack)
+					{
+						str.Format(L"报文头错误,%s 强制关闭连接！revLen=%d NumberOfBytesRecvd=%d",pnode->strUser,revLen,NumberOfBytesRecvd);
+						g_PaySerDlg->AddString(str);
+					}
 					break;
 				}
 				else if (revLen<5)//报文头还没接收完
 				{
+					bOnePack = true;
 					Buffers.buf+=NumberOfBytesRecvd;
 					Buffers.len = 5-revLen;//数据+0x03
 					continue;

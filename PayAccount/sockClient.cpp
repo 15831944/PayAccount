@@ -8,6 +8,8 @@ SOCKET g_CliSock= INVALID_SOCKET;
 DWORD WINAPI RecvThread(LPVOID lpParam);
 DWORD WINAPI HeardThread(LPVOID lpParam);
 
+#define  SHOW_MSGBOX 0
+
 SockClient::SockClient()
 {
 	m_mutex = CreateMutex(NULL, FALSE, NULL);
@@ -76,8 +78,8 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_NETERROR:
 		{
-#ifdef DEBUG
-			int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"错误",MB_RETRYCANCEL);
+#if SHOW_MSGBOX
+			int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"send error",MB_RETRYCANCEL);
 			if(ret==IDRETRY)
 			{
 				Start(TRUE);
@@ -112,7 +114,7 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_START:
 		{
-#ifdef DEBUG
+#if SHOW_MSGBOX
 			MessageBox(L"报文头错误！",L"错误");
 #endif
 			Start();
@@ -120,7 +122,7 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_END:
 		{
-#ifdef DEBUG
+#if SHOW_MSGBOX
 			MessageBox(L"报文尾错误！",L"错误");
 #endif
 			Start();
@@ -234,7 +236,7 @@ bool SockClient::Start(BOOL bShowMsgBox)
 	}
 	else
 	{
-#ifdef DEBUG
+#if SHOW_MSGBOX
 		int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"错误",MB_RETRYCANCEL);
 		if(ret==IDRETRY)
 		{

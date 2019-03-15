@@ -185,6 +185,7 @@ public:
 	CString strInTime;
 	CString strTel;
 	STAFF_TYPE type;
+	double  fDaypay;//该职工日工工资
 	int sort;
 	int nFirstAscii;//拼音首字母ascii值，用于排序
 };

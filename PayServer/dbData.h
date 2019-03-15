@@ -22,12 +22,13 @@ public:
 	CString GetTimeNow();
 
 	//职工
-	bool AddStaff(CString strName,CString strSex,int age,CString strStaffID, CString idcard,CString strTel,int type,int sort);
-	bool ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort);
+	bool AddStaff(CString strName,CString strSex,int age,CString strStaffID, CString idcard,CString strTel,int type,int sort,double fDaypay);
+	bool ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort,double fDaypay);
 	bool DelStaff(CString strStaffID);
 	bool _JudgeStaff(CString idcard, Json::Value& root);
 	bool GetStaffs(CString strKeyWord,Json::Value& root,int nstart = 0,int number = 20);
 	bool GetSampleStaffs(Json::Value& root);
+	bool GetDPay(CString strStaffID,Json::Value& root);
 	//获取职工类型
 	bool GetStaffType(CString strStaffID, int& type);
 

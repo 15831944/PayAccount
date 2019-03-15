@@ -33,12 +33,13 @@ public:
 	CStaffMngDlg* m_dlg;
 	CEditSet m_edit_number;
 	CEditSet m_edit_number_x;
+	CEditSet m_edit_daypay;
 
 	afx_msg void OnBnClickedOk();
 	void SetModifyInit();
 	void SetNotifyWnd(CStaffMngDlg* dlg);
 	void SendToJudgeStaff(CString strIdcard);
 	void SendToAddStaff();
-	void SendToMdfStaff(CString strName,CString strSex,int age,CString strStaffID, CString strIdcard,CString strTel,STAFF_TYPE type,int sort);
+	void SendToMdfStaff(CString strName,CString strSex,int age,CString strStaffID, CString strIdcard,CString strTel,STAFF_TYPE type,int sort,double fDaypay);
 	CComboBox m_comboType;
 };

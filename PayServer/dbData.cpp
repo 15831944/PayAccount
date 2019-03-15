@@ -77,7 +77,7 @@ bool CDbData::_JudgeStaff(CString idcard, Json::Value& root)
 	return ret;
 }
 
-bool CDbData::AddStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort)
+bool CDbData::AddStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort,double fDaypay)
 {
 	WaitForSingleObject(m_hStaff, INFINITE); 
 	USES_CONVERSION;
@@ -86,10 +86,11 @@ bool CDbData::AddStaff(CString strName,CString strSex,int age,CString strStaffID
 	try
 	{
 		CString strTime = GetTimeNow();
-		sprintf(sql,"INSERT INTO staff(name,sex,age,idcard,intime,tell,type,sort,staffID) VALUES('%s','%s',%d,'%s','%s','%s','%d','%d','%s');",
+		sprintf(sql,"INSERT INTO staff(name,sex,age,idcard,intime,tell,type,sort,staffID,day_pay) VALUES('%s','%s',%d,'%s','%s','%s','%d','%d','%s','%.04f');",
 			g_Globle.EncodeToUTF8(W2A(strName)),
 			g_Globle.EncodeToUTF8(W2A(strSex)),
-			age,W2A(idcard),W2A(strTime),W2A(strTel),type,sort,W2A(strStaffID));
+			age,W2A(idcard),W2A(strTime),W2A(strTel),type,sort,W2A(strStaffID),
+			fDaypay);
 
 		sqlite3_stmt *stmt = NULL;//Óï¾ä¾ä±ú
 		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
@@ -563,6 +564,7 @@ bool CDbData::GetStaffs(CString strKeyWord,Json::Value& root,int nstart,int numb
 				one[CMD_STAFFMSG[EM_STAFF_MSG_TYPE]] = (STAFF_TYPE)sqlite3_column_int(stmt, 7);
 				one[CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]]=(char*)sqlite3_column_text(stmt, 8);
 				one[CMD_STAFFMSG[EM_STAFF_MSG_SORT]]=sqlite3_column_int(stmt, 9);
+				one[CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]]=sqlite3_column_double(stmt, 10);
 				
 				root[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one);
 			}
@@ -587,7 +589,7 @@ bool CDbData::GetSampleStaffs(Json::Value& root)
 	try
 	{
 		char sql[MAX_PATH];
-		sprintf(sql,"SELECT staffID,name FROM staff ORDER BY sort");
+		sprintf(sql,"SELECT staffID,name,day_pay FROM staff ORDER BY sort");
 
 		sqlite3_stmt *stmt = NULL;//Óï¾ä¾ä±ú
 		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
@@ -599,12 +601,46 @@ bool CDbData::GetSampleStaffs(Json::Value& root)
 				one[CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]]=(char*)sqlite3_column_text(stmt, 0);
 				const char* tmp = (const char*)sqlite3_column_text(stmt, 1);
 				one[CMD_STAFFMSG[EM_STAFF_MSG_NAME]]=g_Globle.UTF8ToEncode(tmp);
+				one[CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]]=sqlite3_column_double(stmt, 2);
 
 				root[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one);
 			}
 		}
 		else
 		{
+			sqlite3_finalize(stmt);
+			return false;
+		}
+	}
+	catch (...)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool CDbData::GetDPay(CString strStaffID,Json::Value& root)
+{
+	USES_CONVERSION;
+	try
+	{
+		double fdaypay = 0;
+		char sql[MAX_PATH];
+		sprintf(sql,"SELECT day_pay FROM staff WHERE staffID=%s", W2A(strStaffID));
+
+		sqlite3_stmt *stmt = NULL;//Óï¾ä¾ä±ú
+		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
+		if (result == SQLITE_OK)
+		{
+			while (sqlite3_step(stmt) == SQLITE_ROW)
+			{
+				fdaypay=sqlite3_column_double(stmt, 0);
+			}
+			root[CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]]=fdaypay;
+		}
+		else
+		{
+			root[CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]]=fdaypay;
 			sqlite3_finalize(stmt);
 			return false;
 		}
@@ -660,7 +696,7 @@ bool CDbData::AddBook(CString strID, CString strName,CString strCbs,CString strD
 	return ret;
 }
 
-bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort)
+bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaffID,CString idcard,CString strTel,int type,int sort,double fDaypay)
 {
 	WaitForSingleObject(m_hStaff, INFINITE); 
 	USES_CONVERSION;
@@ -668,7 +704,7 @@ bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaf
 	char sql[1024*10];
 	try
 	{
-		sprintf(sql,"UPDATE staff SET name='%s',sex='%s',age='%d',tell='%s',type='%d',sort='%d',idcard='%s' WHERE staffID='%s'",
+		sprintf(sql,"UPDATE staff SET name='%s',sex='%s',age='%d',tell='%s',type='%d',sort='%d',idcard='%s',day_pay='%.04f' WHERE staffID='%s'",
 			g_Globle.EncodeToUTF8(W2A(strName)),
 			g_Globle.EncodeToUTF8(W2A(strSex)),
 			age,
@@ -676,7 +712,9 @@ bool CDbData::ModifyStaff(CString strName,CString strSex,int age,CString strStaf
 			type,
 			sort,
 			W2A(idcard),
-			W2A(strStaffID));
+			fDaypay,
+			W2A(strStaffID)
+			);
 		sqlite3_stmt *stmt = NULL;
 		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
 		if (result == SQLITE_OK)

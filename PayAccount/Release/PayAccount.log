@@ -1,19 +1,14 @@
-﻿生成启动时间为 2019/2/25 10:44:31。
+﻿生成启动时间为 2019/3/15 9:50:44。
      1>项目“D:\PayAccountPro\PayAccount\PayAccount\PayAccount.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Release\PayAccount.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
        ClCompile:
          所有输出均为最新。
-         d:\VS2010\VC\bin\CL.exe /c /Icommon /ID:\PayAccountPro\PayAccount\PayAccount\jsonCpp\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\PayAccount.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt AddStaffDlg.cpp StaffMngDlg.cpp
-         AddStaffDlg.cpp
-     1>d:\payaccountpro\payaccount\payaccount\resource.h(41): warning C4005: “IDC_SIZE”: 宏重定义
-                 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\winuser.h(8832) : 参见“IDC_SIZE”的前一个定义
-         StaffMngDlg.cpp
-     1>d:\payaccountpro\payaccount\payaccount\resource.h(41): warning C4005: “IDC_SIZE”: 宏重定义
-                 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\winuser.h(8832) : 参见“IDC_SIZE”的前一个定义
-     1>d:\payaccountpro\payaccount\payaccount\PayAccountDlg.h(9): warning C4005: “WM_SOCKMSG”: 宏重定义
-                 d:\payaccountpro\payaccount\payaccount\sockClient.h(7) : 参见“WM_SOCKMSG”的前一个定义
-     1>StaffMngDlg.cpp(211): warning C4018: “<”: 有符号/无符号不匹配
+         d:\VS2010\VC\bin\CL.exe /c /Icommon /ID:\PayAccountPro\PayAccount\PayAccount\jsonCpp\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\PayAccount.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt sockClient.cpp
+         sockClient.cpp
+     1>sockClient.cpp(187): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\VS2010\VC\include\stdio.h(371) : 参见“sprintf”的声明
+     1>sockClient.cpp(349): warning C4018: “<”: 有符号/无符号不匹配
        ResourceCompile:
          所有输出均为最新。
        Link:
@@ -68,4 +63,4 @@
 
 生成成功。
 
-已用时间 00:00:09.06
+已用时间 00:00:05.19

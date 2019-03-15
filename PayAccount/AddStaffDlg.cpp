@@ -91,6 +91,7 @@ CAddStaffDlg::CAddStaffDlg(CWnd* pParent /*=NULL*/)
 	m_ndex = -1;
 	m_edit_number.m_type = EDIT_TYPE_NUMBER;
 	m_edit_number_x.m_type = EDIT_TYPE_NUMBER_X;
+	m_edit_daypay.m_type = EDIT_TYPE_FLOAT;
 }
 
 CAddStaffDlg::CAddStaffDlg(CStaffMngDlg* dlg)
@@ -109,6 +110,7 @@ void CAddStaffDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SEX, m_ComBoSex);
 	DDX_Control(pDX, IDC_TEL, m_edit_number);
 	DDX_Control(pDX, IDC_IDCARD, m_edit_number_x);
+	DDX_Control(pDX, IDC_DAYPAY, m_edit_daypay);
 	DDX_Control(pDX, IDC_TYPE, m_comboType);
 }
 
@@ -177,6 +179,10 @@ void CAddStaffDlg::SendToAddStaff()
 
 	int sort = GetDlgItemInt(IDC_SORT);
 
+	CString strDayPay= L"";
+	GetDlgItemText(IDC_DAYPAY,strDayPay);
+	double fDayPay = _ttof(strDayPay);
+
 	//生成唯一ID
 	CTime time_now;
 	time_now = CTime::GetCurrentTime();
@@ -185,33 +191,35 @@ void CAddStaffDlg::SendToAddStaff()
 	USES_CONVERSION;
 	Json::Value root;
 	root[CONNECT_CMD]=SOCK_CMD_ADD_STAFF;
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_NAME]]=T2A(strName);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_SEX]]=T2A(strSex);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_AGE]]=age;
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_STAFFID]]=T2A(strStaffID);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_IDCARD]]=T2A(strID);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_TEL]]=T2A(strTel);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_TYPE]]=type;
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_SORT]]=sort;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_NAME]]=T2A(strName);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_SEX]]=T2A(strSex);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_AGE]]=age;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]]=T2A(strStaffID);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_IDCARD]]=T2A(strID);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_TEL]]=T2A(strTel);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_TYPE]]=type;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_SORT]]=sort;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]]=fDayPay;
 	Json::FastWriter writer;  
 	string temp = writer.write(root);
 	g_SockClient.SendTo(temp);
 
 }
 
-void CAddStaffDlg::SendToMdfStaff(CString strName,CString strSex,int age,CString strStaffID, CString strIdcard,CString strTel,STAFF_TYPE type,int sort)
+void CAddStaffDlg::SendToMdfStaff(CString strName,CString strSex,int age,CString strStaffID, CString strIdcard,CString strTel,STAFF_TYPE type,int sort,double fDaypay)
 {
 	USES_CONVERSION;
 	Json::Value root;
 	root[CONNECT_CMD]=SOCK_CMD_MDF_STAFF;
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_NAME]]=T2A(strName);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_SEX]]=T2A(strSex);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_AGE]]=age;
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_STAFFID]]=T2A(strStaffID);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_IDCARD]]=T2A(strIdcard);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_TEL]]=T2A(strTel);
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_TYPE]]=type;
-	root[CMD_ADDSTAFF[EM_ADD_STAFF_SORT]]=sort;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_NAME]]=T2A(strName);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_SEX]]=T2A(strSex);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_AGE]]=age;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]]=T2A(strStaffID);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_IDCARD]]=T2A(strIdcard);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_TEL]]=T2A(strTel);
+	root[CMD_STAFFMSG[EM_STAFF_MSG_TYPE]]=type;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_SORT]]=sort;
+	root[CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]]=fDaypay;
 	Json::FastWriter writer;  
 	string temp = writer.write(root);
 	g_SockClient.SendTo(temp);
@@ -260,6 +268,9 @@ void CAddStaffDlg::OnBnClickedOk()
 	}
 
 	int sort = GetDlgItemInt(IDC_SORT);
+	CString strDayPay= L"";
+	GetDlgItemText(IDC_DAYPAY,strDayPay);
+	double fDayPay = _ttof(strDayPay);
 
 	if(m_bAdd)
 		SendToJudgeStaff(strID);
@@ -271,7 +282,7 @@ void CAddStaffDlg::OnBnClickedOk()
 			return;
 		}
 		CString strStaffID = m_dlg->m_vet[m_ndex].strStaffID;
-		SendToMdfStaff(strName,strSex,age,strStaffID,strID,strTel,type,sort);
+		SendToMdfStaff(strName,strSex,age,strStaffID,strID,strTel,type,sort,fDayPay);
 	}
 }
 
@@ -305,6 +316,9 @@ void CAddStaffDlg::SetModifyInit()
 			m_comboType.SetCurSel(i);
 		}
 	}
+	CString strDaypay = m_dlg->m_ListCtrl.GetItemText(m_dlg->m_nItem, 8);
+	SetDlgItemText(IDC_DAYPAY,strDaypay);
+
 	CButton *pBtn = (CButton *)GetDlgItem(IDOK);
 	pBtn->SetWindowText(L"保存");
 }

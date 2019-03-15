@@ -55,9 +55,10 @@
 #define IDC_KB                          1007
 #define IDC_TYPE                        1007
 #define IDC_BUTTON2                     1008
-#define IDC_AGE2                        1008
 #define IDC_SORT                        1008
 #define IDC_LIST1                       1009
+#define IDC_SORT2                       1009
+#define IDC_DAYPAY                      1009
 #define IDC_COMBO1                      1010
 #define IDC_KEYWORD                     1011
 #define IDC_COMBO4                      1011

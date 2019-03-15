@@ -103,6 +103,9 @@ void CWorkCalDlg::OnDtnDatetimechangeDatetimepicker1(NMHDR *pNMHDR, LRESULT *pRe
 {
 	LPNMDATETIMECHANGE pDTChange = reinterpret_cast<LPNMDATETIMECHANGE>(pNMHDR);
 	// TODO: 在此添加控件通知处理程序代码
+	//设置回调
+	g_SockClient.SetCallback(WorkCalCallback,this);
+
 	SendToGetOnePayList();
 	*pResult = 0;
 }
@@ -265,30 +268,8 @@ void CWorkCalDlg::GetStaff(Json::Value root)
 				STAFF_STU stu;
 				stu.strname = js[i][CMD_STAFFMSG[EM_STAFF_MSG_NAME]].asCString();
 				stu.strStaffID = js[i][CMD_STAFFMSG[EM_STAFF_MSG_STAFFID]].asCString();
+				stu.fDaypay = js[i][CMD_STAFFMSG[EM_STAFF_MSG_DAYPAY]].asDouble();
 				m_vet.push_back(stu);
-				/*
-				stu.nFirstAscii = g_Globle.GetFirstAsciiValue(stu.strname);
-				if (m_vet.size() == 0)
-				{
-					m_vet.push_back(stu);
-				}
-				else
-				{
-					bool bInset=false;
-					vector <STAFF_STU>::iterator it;
-					for ( it = m_vet.begin( ) ; it != m_vet.end( ) ; it++ )
-					{
-						if (stu.nFirstAscii<(*it).nFirstAscii)
-						{
-							bInset = true;
-							m_vet.insert(it,stu);
-							break;
-						}
-					}
-					if(!bInset)
-						m_vet.push_back(stu);
-				}
-				*/
 			}
 		}
 	}
