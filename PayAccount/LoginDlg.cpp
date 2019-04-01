@@ -101,6 +101,7 @@ DWORD WINAPI InitDlgThread(LPVOID lpParam)
 
 LRESULT CLoginDlg::OnInitDlg(WPARAM wParam, LPARAM lParam)
 {
+	Log("----------------------start----------------------");
 	g_SockClient.createWin();
 	CreateThread(NULL,0,InitDlgThread,this,0,NULL);
 	return TRUE;

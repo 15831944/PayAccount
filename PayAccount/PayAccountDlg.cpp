@@ -470,6 +470,12 @@ BOOL CPayAccountDlg::OnCommand(WPARAM wParam, LPARAM lParam)
 			dlg.DoModal();					 
 			break;
 		}
+	case ID_LOG:
+		{
+			USES_CONVERSION;
+			ShellExecute(NULL,L"open",A2T(g_Globle.m_LogRootPath.c_str()), NULL, NULL, SW_SHOWNORMAL);
+			break;
+		}
 	}
 	return CDialog::OnCommand(wParam, lParam);
 }

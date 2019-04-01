@@ -68,18 +68,23 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_SERCLOSE:
 		{
+			Log("Server have closed the connection!");
 			MessageBox(L"Server have closed the connection!",L"");
 			break;
 		}
 	case SOCK_ERROR_RECVERROR:
 		{
+			Log("Receive Server data Failed!");
 			MessageBox(L"Receive Server data Failed!",L"");
 			break;
 		}
 	case SOCK_ERROR_NETERROR:
 		{
+			int err = wParam;
+			CString str;
+			str.Format(L"send error:%d",err);
 #if SHOW_MSGBOX
-			int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"send error",MB_RETRYCANCEL);
+			int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",str,MB_RETRYCANCEL);
 			if(ret==IDRETRY)
 			{
 				Start(TRUE);
@@ -91,7 +96,7 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 			}
 			else
 			{
-				int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"错误",MB_RETRYCANCEL);
+				int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",str,MB_RETRYCANCEL);
 				if(ret==IDRETRY)
 				{
 					Start(TRUE);
@@ -102,18 +107,21 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_OUTMAXBUFF:
 		{
+			Log("报文超过最大接收长度");
 			MessageBox(L"报文超过最大接收长度!",L"错误");
 			Start();
 			break;
 		}
 	case SOCK_ERROR_OUTMAX_RECVLEN:
 		{
+			Log("实际接收长度超出定义范围");
 			MessageBox(L"实际接收长度超出定义范围!",L"错误");
 			Start();
 			break;
 		}
 	case SOCK_ERROR_START:
 		{
+			Log("报文头错误");
 #if SHOW_MSGBOX
 			MessageBox(L"报文头错误！",L"错误");
 #endif
@@ -122,6 +130,7 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_END:
 		{
+			Log("报文尾错误");
 #if SHOW_MSGBOX
 			MessageBox(L"报文尾错误！",L"错误");
 #endif
@@ -130,6 +139,7 @@ LRESULT SockClient::OnSockMsg(WPARAM wParam, LPARAM lParam)
 		}
 	case SOCK_ERROR_UNKNOW:
 		{
+			Log("未知的异常网络事件");
 			MessageBox(L"未知的异常网络事件！",L"错误");
 			break;
 		}
@@ -236,8 +246,9 @@ bool SockClient::Start(BOOL bShowMsgBox)
 	}
 	else
 	{
+		Log("ConnectSer error");
 #if SHOW_MSGBOX
-		int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"错误",MB_RETRYCANCEL);
+		int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"Connect error",MB_RETRYCANCEL);
 		if(ret==IDRETRY)
 		{
 			return Start(TRUE);
@@ -253,7 +264,7 @@ bool SockClient::Start(BOOL bShowMsgBox)
 		}
 		else
 		{
-			int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"错误",MB_RETRYCANCEL);
+			int ret = MessageBox(L"网络异常,单击‘重试’尝试重新连接。",L"Connect error",MB_RETRYCANCEL);
 			if(ret==IDRETRY)
 			{
 				return Start(TRUE);
@@ -283,12 +294,13 @@ DWORD WINAPI HeardThread(LPVOID lpParam)
 				root[HEARTMSG[EM_HEART_NAME]]=T2A(g_Globle.m_strName);
 				Json::FastWriter writer;  
 				string temp = writer.write(root);
-				if(pThis->SendTo(temp)==0)
+				int ret = pThis->SendTo(temp);
+				if(ret == 0)
 					i=0;
 				else
 				{
 					pThis->m_bConnect = FALSE;
-					pThis->PostMessageW(WM_SOCKMSG,NULL,SOCK_ERROR_NETERROR);
+					pThis->PostMessageW(WM_SOCKMSG,ret,SOCK_ERROR_NETERROR);
 					break;
 				}
 				
@@ -346,7 +358,11 @@ int SockClient::SendTo(string strData,long len)
 				if(SOCKET_ERROR != Ret)
 					dwBytesSent += NumberOfBytesSent;
 				else
+				{
+					Ret = WSAGetLastError();
+					Log("send error : %d",Ret);
 					break;
+				}
 			}
 			while((dwBytesSent < AllLen) && SOCKET_ERROR != Ret);
 		}

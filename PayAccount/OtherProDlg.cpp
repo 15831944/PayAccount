@@ -57,7 +57,15 @@ LRESULT COtherProDlg::OnCallBack(WPARAM wParam, LPARAM lParam)
 			else
 			{
 				GetBook(root);
-				SendToGetOtherPay();
+				int ndex = m_ComboProject.GetCurSel();
+				if (ndex>=0)
+				{
+					PROJECT_STU stu= *((PROJECT_STU*)m_ComboProject.GetItemData(ndex));
+					if (stu.nAllBook == 0)
+						SendToGetOtherPay(stu.nID);
+					else
+						SetListCtrlValue();
+				}
 			}
 		}
 		break;
@@ -78,6 +86,34 @@ LRESULT COtherProDlg::OnCallBack(WPARAM wParam, LPARAM lParam)
 				MessageBox(L"保存数据失败！",L"错误");
 			else
 			{
+				int ndex = m_ComboProject.GetCurSel();
+				if (ndex>=0)
+				{
+					CString strPay;
+					m_payEdit.GetWindowTextW(strPay);
+					PROJECT_STU* stu= ((PROJECT_STU*)m_ComboProject.GetItemData(ndex));
+					stu->nAllBook = 0;
+					stu->strPay = L"";
+				}
+				MessageBox(L"保存成功！",L"");
+			}
+		}
+		break;
+	case SOCK_CMD_SET_OTHERALLBOOKPAY:
+		{
+			if (ret == NET_CMD_FAIL)
+				MessageBox(L"保存数据失败！",L"错误");
+			else
+			{
+				int ndex = m_ComboProject.GetCurSel();
+				if (ndex>=0)
+				{
+					CString strPay;
+					m_payEdit.GetWindowTextW(strPay);
+					PROJECT_STU* stu= ((PROJECT_STU*)m_ComboProject.GetItemData(ndex));
+					stu->nAllBook = 1;
+					stu->strPay = strPay;
+				}
 				MessageBox(L"保存成功！",L"");
 			}
 		}
@@ -104,6 +140,7 @@ void COtherProDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST1, m_ListCtrl);
 	DDX_Control(pDX, IDC_COMBO_PRO, m_ComboProject);
 	DDX_Control(pDX, IDC_EDIT1, m_edit);
+	DDX_Control(pDX, IDC_EDIT2, m_payEdit);
 }
 
 
@@ -113,6 +150,7 @@ BEGIN_MESSAGE_MAP(COtherProDlg, CSetPayDlg)
 	ON_MESSAGE(WM_OTHERPAY_CALL, &COtherProDlg::OnCallBack)
 	ON_EN_KILLFOCUS(IDC_EDIT1, &COtherProDlg::OnEnKillfocusEdit1)
 	ON_NOTIFY(NM_CLICK, IDC_LIST1, &COtherProDlg::OnNMClickList1)
+	ON_BN_CLICKED(IDC_CHECK, &COtherProDlg::OnBnClickedCheck)
 END_MESSAGE_MAP()
 
 
@@ -122,6 +160,9 @@ BOOL COtherProDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 	m_edit.m_type = EDIT_TYPE_FLOAT;
 	m_edit.m_maxLen = 10;
+
+	m_payEdit.m_type = EDIT_TYPE_FLOAT;
+	m_payEdit.m_maxLen = 10;
 
 	m_ListCtrl.SetNotifyWnd(this);
 	m_ListCtrl.InitListCtrl();
@@ -152,19 +193,14 @@ void COtherProDlg::SendToGetBook()
 	g_SockClient.SendTo(temp);
 }
 
-void COtherProDlg::SendToGetOtherPay()
+void COtherProDlg::SendToGetOtherPay(int nID)
 {
-	int ndex = m_ComboProject.GetCurSel();
-	if (ndex>=0)
-	{
-		int nID= *((int*)m_ComboProject.GetItemData(ndex));
-		Json::Value root;
-		root[CONNECT_CMD]=SOCK_CMD_GET_OTHERPAY;
-		root[CMD_OTHERPAY[EM_OTHER_PAY_PROID]] = nID;
-		Json::FastWriter writer;  
-		string temp = writer.write(root);
-		g_SockClient.SendTo(temp);
-	}
+	Json::Value root;
+	root[CONNECT_CMD]=SOCK_CMD_GET_OTHERPAY;
+	root[CMD_OTHERPAY[EM_OTHER_PAY_PROID]] = nID;
+	Json::FastWriter writer;  
+	string temp = writer.write(root);
+	g_SockClient.SendTo(temp);
 }
 
 void COtherProDlg::SendToSetOtherPay(int proID, vector<OTHER_PRO_PAY> vec)
@@ -180,6 +216,18 @@ void COtherProDlg::SendToSetOtherPay(int proID, vector<OTHER_PRO_PAY> vec)
 		root[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one);
 	}
 	root[CMD_OTHERPAY[EM_OTHER_PAY_PROID]] = proID;
+	Json::FastWriter writer;  
+	string temp = writer.write(root);
+	g_SockClient.SendTo(temp);
+}
+
+void COtherProDlg::SendToSetOtherAllBookPay(int proID,CString strPay)
+{
+	USES_CONVERSION;
+	Json::Value root;
+	root[CONNECT_CMD]=SOCK_CMD_SET_OTHERALLBOOKPAY;
+	root[CMD_PROMSG[EM_PROMSG_ID]] = proID;
+	root[CMD_PROMSG[EM_PROMSG_PAY]] = T2A(strPay);
 	Json::FastWriter writer;  
 	string temp = writer.write(root);
 	g_SockClient.SendTo(temp);
@@ -203,7 +251,28 @@ void COtherProDlg::GetProject(Json::Value root)
 		stu.strName=one[CMD_PROMSG[EM_PROMSG_NAME]].asCString();
 		stu.pn_type=(PRO_NUM_TYPE)one[CMD_PROMSG[EM_PROMSG_NUM_TYPE]].asInt();
 		stu.ps_type=(PRO_STAFF_TYPE)one[CMD_PROMSG[EM_PROMSG_BWRITE]].asInt();
-		m_vProList.push_back(stu);
+		stu.ndex=one[CMD_PROMSG[EM_PROMSG_NDEX]].asInt();
+		stu.nAllBook=one[CMD_PROMSG[EM_PROMSG_ALL_BOOK]].asInt();
+		stu.strPay=one[CMD_PROMSG[EM_PROMSG_PAY]].asCString();
+		//按ndex从小到大排列
+		if(m_vProList.size() == 0)
+			m_vProList.push_back(stu);
+		else
+		{
+			bool bInset=false;
+			vector <PROJECT_STU>::iterator it;
+			for ( it = m_vProList.begin( ) ; it != m_vProList.end( ) ; it++ )
+			{
+				if (stu.ndex<(*it).ndex)
+				{
+					bInset = true;
+					m_vProList.insert(it,stu);
+					break;
+				}
+			}
+			if(!bInset)
+				m_vProList.push_back(stu);
+		}
 	}
 	int ndex = 0;
 	nCount = m_vProList.size();
@@ -212,12 +281,27 @@ void COtherProDlg::GetProject(Json::Value root)
 		if (m_vProList[i].nID >= PROJECT_TYPE_OTHER)
 		{
 			m_ComboProject.InsertString(ndex, m_vProList[i].strName);
-			m_ComboProject.SetItemData(ndex,(DWORD_PTR)&m_vProList[i].nID);
+			m_ComboProject.SetItemData(ndex,(DWORD_PTR)&m_vProList[i]);
 			ndex++;
 		}
 	}
 	if (nCount>0)
+	{
 		m_ComboProject.SetCurSel(0);
+		PROJECT_STU stu= *((PROJECT_STU*)m_ComboProject.GetItemData(0));
+		if (stu.nAllBook == 1)
+		{
+			((CButton*)GetDlgItem(IDC_CHECK))->SetCheck(1);
+			m_payEdit.SetWindowTextW(stu.strPay);
+			m_payEdit.EnableWindow(TRUE);
+			m_ListCtrl.EnableWindow(FALSE);
+		}
+		else
+		{
+			m_payEdit.EnableWindow(FALSE);
+			m_ListCtrl.EnableWindow(TRUE);
+		}
+	}
 }
 
 void COtherProDlg::GetBook(Json::Value root)
@@ -317,7 +401,26 @@ void COtherProDlg::UpdateDlg()
 
 void COtherProDlg::OnCbnSelchangeComboPro()
 {
-	SendToGetOtherPay();
+	int ndex = m_ComboProject.GetCurSel();
+	if (ndex>=0)
+	{
+		PROJECT_STU stu= *((PROJECT_STU*)m_ComboProject.GetItemData(ndex));
+		if (stu.nAllBook == 1)
+		{
+			((CButton*)GetDlgItem(IDC_CHECK))->SetCheck(1);
+			m_payEdit.SetWindowTextW(stu.strPay);
+			m_payEdit.EnableWindow(TRUE);
+			m_ListCtrl.EnableWindow(FALSE);
+		}
+		else
+		{
+			((CButton*)GetDlgItem(IDC_CHECK))->SetCheck(0);
+			m_payEdit.SetWindowText(L"");
+			SendToGetOtherPay(stu.nID);
+			m_payEdit.EnableWindow(FALSE);
+			m_ListCtrl.EnableWindow(TRUE);
+		}
+	}
 }
 
 //save
@@ -334,25 +437,43 @@ void COtherProDlg::OnBnClickedButton1()
 		MessageBox(L"请先添加项目信息",L"提示");
 		return;
 	}
-	vector<OTHER_PRO_PAY> vec;
-	int nSize = m_ListCtrl.GetItemCount();
-	for (int i = 0; i < nSize;i++)
+	int nCheck = ((CButton*)GetDlgItem(IDC_CHECK))->GetCheck();
+	if (nCheck >0)
 	{
-		BOOK_STU stu = *(BOOK_STU*)m_ListCtrl.GetItemData(i);
-		OTHER_PRO_PAY one;
-		one.strBookID = stu.strBookID;
-		one.strPay =  m_ListCtrl.GetItemText(i,2);
-		if (!one.strPay.IsEmpty())
+		CString strPay;
+		m_payEdit.GetWindowTextW(strPay);
+		if (strPay.IsEmpty())
 		{
-			vec.push_back(one);
+			MessageBox(L"请先输入单价",L"提示");
+			return;
+		}
+		else
+		{
+			SendToSetOtherAllBookPay(proID,strPay);
 		}
 	}
-	if (vec.size()==0)
+	else
 	{
-		MessageBox(L"请先添加信息",L"提示");
-		return;
+		vector<OTHER_PRO_PAY> vec;
+		int nSize = m_ListCtrl.GetItemCount();
+		for (int i = 0; i < nSize;i++)
+		{
+			BOOK_STU stu = *(BOOK_STU*)m_ListCtrl.GetItemData(i);
+			OTHER_PRO_PAY one;
+			one.strBookID = stu.strBookID;
+			one.strPay =  m_ListCtrl.GetItemText(i,2);
+			if (!one.strPay.IsEmpty())
+			{
+				vec.push_back(one);
+			}
+		}
+		if (vec.size()==0)
+		{
+			MessageBox(L"请先添加信息",L"提示");
+			return;
+		}
+		SendToSetOtherPay(proID,vec);
 	}
-	SendToSetOtherPay(proID,vec);
 }
 
 
@@ -416,5 +537,22 @@ void COtherProDlg::OnNMClickList1(NMHDR *pNMHDR, LRESULT *pResult)
 			m_edit.SetSel(0,-1);
 		}
 		*pResult = 0;
+	}
+}
+
+
+void COtherProDlg::OnBnClickedCheck()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int nCheck = ((CButton*)GetDlgItem(IDC_CHECK))->GetCheck();
+	if (nCheck > 0)
+	{
+		m_payEdit.EnableWindow(TRUE);
+		m_ListCtrl.EnableWindow(FALSE);
+	}
+	else
+	{
+		m_payEdit.EnableWindow(FALSE);
+		m_ListCtrl.EnableWindow(TRUE);
 	}
 }

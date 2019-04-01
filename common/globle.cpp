@@ -4,6 +4,7 @@
 #include <fstream>
 #include <shlobj.h>
 #include <atlconv.h>
+#include <time.h>
 
 CGloble g_Globle;
 
@@ -18,6 +19,7 @@ CString DateName[] = {L"È«²¿",L"×î½üÒ»ÖÜ", L"×î½üÒ»¸öÔÂ", L"×î½üÈý¸öÔÂ", L"°ëÄêÄ
 
 CGloble::CGloble()
 {
+	m_LogPath = GetLogFileName();
 	CString workPath = GetWorkDir();
 	m_ConfigFilePath = workPath+L"/config/config.ini";
 }
@@ -88,7 +90,6 @@ char* CGloble::UTF8ToEncode(const char* mbcsStr)
 bool CGloble::InitGloble()
 {
 	USES_CONVERSION;
-	
 	fstream _file;
 	_file.open(m_ConfigFilePath,ios::in);
 	if(!_file)
@@ -396,4 +397,77 @@ char* CGloble::CombineSendData(string strData,long& allLen)
 	//ÏûÏ¢Î²±êÖ¾
 	sendBuf[dataLen+5] = MSG_END;
 	return sendBuf;
+}
+
+string CGloble::GetAppDataPath()
+{
+	USES_CONVERSION;
+
+	TCHAR szPath[MAX_PATH];
+	memset(szPath,0,MAX_PATH);
+	string strPath;
+#ifdef _DEBUG
+	GetCurrentDirectory(MAX_PATH,szPath);//»ñÈ¡µ±Ç°¹¤×÷Â·¾¶
+	strPath = W2A(szPath);
+#else
+	GetModuleFileName(NULL,szPath,MAX_PATH);
+	string str = W2A(szPath);
+	int ndex = str.rfind('\\');
+	strPath=str.substr(0,ndex);
+#endif
+	return strPath;
+}
+
+string CGloble::GetLogFileName()
+{
+	static string file;
+	if(file.empty())
+	{
+		char tmp[1024]={0};
+		sprintf(tmp,"%s\\Log\\",GetAppDataPath().c_str());
+		::CreateDirectoryA(tmp,0);
+		m_LogRootPath = tmp;
+
+		time_t t;
+		tm* time2;
+		t=time(NULL);
+		time2=localtime(&t);
+		sprintf(tmp+strlen(tmp),"%04d%02d%02d.log",time2->tm_year+1900,time2->tm_mon+1,time2->tm_mday);
+		file=tmp;
+	}
+	return file;
+}
+
+void Log(char* fmt, ...)
+{
+	va_list args;
+	va_start (args, fmt);
+	char* tmp=new char[1024*10];
+	memset(tmp,0,1024*10);
+	vsprintf(tmp,fmt, args);
+
+	time_t t;
+	tm* time2;
+	t=time(NULL);
+	time2=localtime(&t);
+	FILE* fp=fopen(g_Globle.m_LogPath.c_str(),"a+");
+	if(fp)
+	{
+		int len = strlen(tmp);
+		char *ctmp=new char[len+1024];
+		memset(ctmp,0,len+1024);
+		sprintf(ctmp,"%04d/%02d/%02d %02d:%02d:%02d\t%s\n",time2->tm_year+1900,time2->tm_mon+1,time2->tm_mday,time2->tm_hour,time2->tm_min,time2->tm_sec,tmp);
+		cout<<ctmp;
+		fprintf(fp,ctmp);
+		fclose(fp);
+		delete[] ctmp;
+	}
+#ifdef DEBUG_LOG
+	string str=tmp;
+	str+="\r\n";
+	::OutputDebugStringA(str.c_str());
+#endif
+
+	delete[] tmp;
+	va_end(args);
 }

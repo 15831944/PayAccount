@@ -57,7 +57,6 @@
 #define IDC_BUTTON2                     1008
 #define IDC_SORT                        1008
 #define IDC_LIST1                       1009
-#define IDC_SORT2                       1009
 #define IDC_DAYPAY                      1009
 #define IDC_COMBO1                      1010
 #define IDC_KEYWORD                     1011
@@ -181,6 +180,8 @@
 #define IDC_EDIT_ADRESS                 1112
 #define IDC_STA_MSG                     1113
 #define IDC_EDIT_ADRESS2                1113
+#define IDC_CHECK1                      1114
+#define IDC_CHECK                       1114
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -211,14 +212,16 @@
 #define ID_32798                        32798
 #define ID_LOGOFF                       32799
 #define ID_SETPAY                       32800
+#define ID_32801                        32801
+#define ID_LOG                          32802
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        155
-#define _APS_NEXT_COMMAND_VALUE         32801
-#define _APS_NEXT_CONTROL_VALUE         1114
+#define _APS_NEXT_COMMAND_VALUE         32803
+#define _APS_NEXT_CONTROL_VALUE         1115
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

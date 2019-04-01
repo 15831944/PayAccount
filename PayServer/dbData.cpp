@@ -221,7 +221,9 @@ bool CDbData::SaveProNdex(Json::Value root)
 						sprintf(sql, "UPDATE project SET ndex = '%d' WHERE id='%d';", ndex,nProID);
 						strcat(all_sql, sql);
 					}
+					result = sqlite3_exec( m_sqlite, "begin transaction", 0, 0, &errmsg ); //开始一个事务
 					result = sqlite3_exec(m_sqlite, all_sql, NULL, &ret, &errmsg);
+					result = sqlite3_exec( m_sqlite, "commit transaction", 0, 0, &errmsg ); //提交事务					
 					if (result == SQLITE_OK)
 					{
 						ret = true;
@@ -1385,9 +1387,9 @@ bool CDbData::GetProjectLists(Json::Value& root,PRO_STAFF_TYPE type)
 	try
 	{
 		if(type == PRO_STAFF_TYPE_MAX)
-			sprintf(sql, "SELECT id,name,pro_num_type,staff_write,ndex FROM project");
+			sprintf(sql, "SELECT id,name,pro_num_type,staff_write,ndex,all_book,pay FROM project");
 		else
-			sprintf(sql, "SELECT id,name,pro_num_type,staff_write,ndex FROM project WHERE staff_write='%d'",PRO_STAFF_TYPE_YES);
+			sprintf(sql, "SELECT id,name,pro_num_type,staff_write,ndex,all_book,pay FROM project WHERE staff_write='%d'",PRO_STAFF_TYPE_YES);
 
 		sqlite3_stmt *stmt = NULL;
 		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
@@ -1404,6 +1406,8 @@ bool CDbData::GetProjectLists(Json::Value& root,PRO_STAFF_TYPE type)
 				one[CMD_PROMSG[EM_PROMSG_NUM_TYPE]] = (PRO_NUM_TYPE)sqlite3_column_int(stmt, 2);
 				one[CMD_PROMSG[EM_PROMSG_BWRITE]] = (PRO_STAFF_TYPE)sqlite3_column_int(stmt, 3);
 				one[CMD_PROMSG[EM_PROMSG_NDEX]] = sqlite3_column_int(stmt, 4);
+				one[CMD_PROMSG[EM_PROMSG_ALL_BOOK]] = sqlite3_column_int(stmt, 5);
+				one[CMD_PROMSG[EM_PROMSG_PAY]] = (char*)sqlite3_column_text(stmt, 6);
 				root[itoa(nCount,str,10)]=one;
 				nCount++;
 			}
@@ -1740,7 +1744,13 @@ bool CDbData::SaveOtherPay(int proID, vector<OTHER_PRO_PAY> vec)
 			sprintf(stmp, "REPLACE INTO other_number_pay(proID,bookID,pay) VALUES('%d','%s','%s');", proID, W2A(vec[i].strBookID), W2A(vec[i].strPay));
 			strcat(sql, stmp);
 		}
+		char tmp[256]={0};
+		sprintf(tmp,"UPDATE project SET all_book='0',pay='0' WHERE id='%d';",proID);
+		strcat(sql, tmp);
+
+		result = sqlite3_exec( m_sqlite, "begin transaction", 0, 0, &errmsg ); //开始一个事务
 		result = sqlite3_exec(m_sqlite, sql, NULL, &ret, &errmsg);
+		result = sqlite3_exec( m_sqlite, "commit transaction", 0, 0, &errmsg ); //提交事务
 		if (result == SQLITE_OK)
 		{
 			ret = true;
@@ -1750,6 +1760,53 @@ bool CDbData::SaveOtherPay(int proID, vector<OTHER_PRO_PAY> vec)
 	catch (...)
 	{
 		ret = false;
+	}
+	return ret;
+}
+
+bool CDbData::SaveOtherAllBookPay(int proID,CString strPay)
+{
+	USES_CONVERSION;
+	bool ret=false;
+
+	char sql[MAX_PATH];
+	try
+	{
+		sprintf(sql, "DELETE FROM other_number_pay WHERE proID='%d'",proID);
+		sqlite3_stmt *stmt = NULL;
+		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
+		if (result == SQLITE_OK)
+		{
+			sqlite3_step(stmt);
+			ret = true;
+		}
+		sqlite3_finalize(stmt);
+
+	}
+	catch (CException* e)
+	{
+		ret = false;
+	}
+
+	try
+	{
+		memset(sql,0,MAX_PATH);
+		sprintf(sql,"UPDATE project SET all_book='1',pay='%s' WHERE id='%d'",
+			W2A(strPay),
+			proID
+			);
+		sqlite3_stmt *stmt = NULL;
+		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
+		if (result == SQLITE_OK)
+		{
+			sqlite3_step(stmt);
+			ret=true;
+		}
+		sqlite3_finalize(stmt);
+	}
+	catch (...)
+	{
+		ret=false;
 	}
 	return ret;
 }
@@ -1913,17 +1970,39 @@ CString CDbData::GetOtherPayFromID(int proID, CString strBookID)
 	USES_CONVERSION;
 	try
 	{
-		sprintf(sql, "SELECT pay FROM other_number_pay WHERE proID='%d' AND bookID='%s'", proID, W2A(strBookID));
+		int all_book=0;
+		CString strPay = L"";
+		sprintf(sql, "SELECT all_book,pay FROM project WHERE id='%d'", proID);
 		sqlite3_stmt *stmt = NULL;
 		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
 		if (result == SQLITE_OK)
 		{
 			while (sqlite3_step(stmt) == SQLITE_ROW)
 			{
-				strRet = sqlite3_column_text(stmt, 0);
+				all_book = sqlite3_column_int(stmt, 0);
+				strPay = (char*)sqlite3_column_text(stmt, 1);
 			}
 		}
 		sqlite3_finalize(stmt);
+
+		if (all_book == 1)
+		{
+			strRet = strPay;
+		}
+		else
+		{
+			memset(sql,0,MAX_PATH);
+			sprintf(sql, "SELECT pay FROM other_number_pay WHERE proID='%d' AND bookID='%s'", proID, W2A(strBookID));
+			int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
+			if (result == SQLITE_OK)
+			{
+				while (sqlite3_step(stmt) == SQLITE_ROW)
+				{
+					strRet = sqlite3_column_text(stmt, 0);
+				}
+			}
+			sqlite3_finalize(stmt);
+		}
 	}
 	catch (...)
 	{
@@ -2330,7 +2409,7 @@ bool CDbData::_GetDayPayList(Json::Value& js,Json::Value root)
 	return bret;
 }
 
-bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root)
+bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root,DWORD& time)
 {
 	vector<MONTH_PAY_STAFF> v_staffs;
 	if (root.isMember(CMD_RetType[EM_CMD_RETYPE_VALUE]))
@@ -2375,6 +2454,12 @@ bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root)
 	USES_CONVERSION;
 	try
 	{
+		DWORD t1=GetTickCount();
+		sqlite3_exec(m_sqlite, "begin transaction", 0, 0, NULL);
+		sprintf(sql, "SELECT money FROM day_pay WHERE staffID=? AND date=?");
+		sqlite3_stmt *stmt = NULL;
+		int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
+
 		for (int i=0;i<v_staffs.size();i++)
 		{
 			MONTH_PAY_STAFF staff = v_staffs[i];
@@ -2386,10 +2471,11 @@ bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root)
 				MONTHPAY_DAY day = staff.vDays[j];
 				Json::Value one2;
 				one2[MPAYMSG[EM_GET_MPAY_DEX]]=day.ndex;
-				//sprintf(sql, "SELECT id,pay_type,proID,bookID,pay,number,money,payDay,days,proName,bookName FROM day_pay WHERE staffID='%s' AND date='%s'",W2A(staff.strStaffID),W2A(day.strDate));
-				sprintf(sql, "SELECT money FROM day_pay WHERE staffID='%s' AND date='%s'",W2A(staff.strStaffID),W2A(day.strDate));
-				sqlite3_stmt *stmt = NULL;
-				int result = sqlite3_prepare_v2(m_sqlite, sql, -1, &stmt, NULL);
+
+				sqlite3_reset(stmt);
+				sqlite3_bind_text(stmt,1,W2A(staff.strStaffID),-1,SQLITE_STATIC);
+				sqlite3_bind_text(stmt,2,W2A(day.strDate),-1,SQLITE_STATIC);
+
 				if (result == SQLITE_OK)
 				{
 					bret=true;
@@ -2397,34 +2483,19 @@ bool CDbData::_GetMouthPay(Json::Value& js,Json::Value root)
 					{
 						Json::Value one3;
 						CString str;
-						/*one3[MPAYMSG[EM_GET_MPAY_ID]] = sqlite3_column_int(stmt, 0);
-						DAYPAY_TYPE type = (DAYPAY_TYPE)sqlite3_column_int(stmt, 1);
-						one3[MPAYMSG[EM_GET_MPAY_TYPE]] = type;
-						if (type == DAYPAY_TYPE_DAY)
-						{
-							one3[MPAYMSG[EM_GET_MPAY_PAYDAY]] = (char*)sqlite3_column_text(stmt, 7);
-							one3[MPAYMSG[EM_GET_MPAY_DAYS]] = (char*)sqlite3_column_text(stmt, 8);
-						}
-						else if(type == DAYPAY_TYPE_JIJIAN)
-						{
-							one3[MPAYMSG[EM_GET_MPAY_PROID]] = sqlite3_column_int(stmt, 2);
-							one3[MPAYMSG[EM_GET_MPAY_BOOKID]] = (char*)sqlite3_column_text(stmt, 3);
-							one3[MPAYMSG[EM_GET_MPAY_PAY]] = (char*)sqlite3_column_text(stmt, 4);
-							one3[MPAYMSG[EM_GET_MPAY_NUMBER]] = sqlite3_column_int(stmt, 5);
-							char* tmp = (char*)sqlite3_column_text(stmt, 9);
-							one3[MPAYMSG[EM_GET_MPAY_PRONAME]] = g_Globle.UTF8ToEncode(tmp);
-							char* tmp2 = (char*)sqlite3_column_text(stmt, 10);
-							one3[MPAYMSG[EM_GET_MPAY_BOOKNAME]] = g_Globle.UTF8ToEncode(tmp2);
-						}*/
 						one3[MPAYMSG[EM_GET_MPAY_MONEY]] = (char*)sqlite3_column_text(stmt, 0);
 						one2[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one3);
 					}
 				}
-				sqlite3_finalize(stmt);
 				one1[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one2);
 			}
 			js[CMD_RetType[EM_CMD_RETYPE_VALUE]].append(one1);
 		}
+		sqlite3_finalize(stmt);
+		sqlite3_exec(m_sqlite, "commit transaction", 0, 0, NULL);
+
+		DWORD t2=GetTickCount();
+		time = t2-t1;
 	}
 	catch (...)
 	{

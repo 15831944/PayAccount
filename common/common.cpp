@@ -99,6 +99,8 @@ const char CMD_PROMSG[EM_PROMSG_MAX][CMD_CHAR_MAX]=
 	"name",
 	"num_type",
 	"bwrite",
+	"all_book",
+	"pay",
 	"count"
 };
 

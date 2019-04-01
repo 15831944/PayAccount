@@ -66,6 +66,7 @@ void CPayServerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST3, m_listCtrl);
 	DDX_Control(pDX, IDC_STA_IP, m_staIP);
 	DDX_Control(pDX, IDC_CK_STARTRUN, m_ckRun);
+	DDX_Control(pDX, IDC_STA, m_NowSta);
 }
 
 BEGIN_MESSAGE_MAP(CPayServerDlg, CDialogEx)
@@ -340,14 +341,6 @@ void CPayServerDlg::DeleteClient(Node* pnode)
 	{
 		if ((*it)->s == pnode->s)
 		{
-			CString str;
-			USES_CONVERSION;
-			str.Format(L"%d 断开",pnode->nThreadID);
-			AddString(str);
-
-			closesocket((*it)->s);
-			delete (*it);
-			(*it)=NULL;
 			it=m_vNode.erase(it);
 			break;
 		}
@@ -356,6 +349,10 @@ void CPayServerDlg::DeleteClient(Node* pnode)
 			++it;
 		}
 	}
+	
+	delete pnode;
+	pnode=NULL;
+
 	CString str;
 	str.Format(L"当前连接数：%d",m_vNode.size());
 	SetDlgItemText(IDC_STA,str);
@@ -405,7 +402,7 @@ bool CPayServerDlg::AddClientList(SOCKET s,sockaddr_in addr)
 	{
 		node->nThreadID=ThreadID;
 		node->hHandle = hThread;
-		WaitForSingleObject(m_mutex, INFINITE);
+		/*WaitForSingleObject(m_mutex, INFINITE);
 		m_vNode.push_back(node);
 		ReleaseMutex(m_mutex); 
 
@@ -414,7 +411,7 @@ bool CPayServerDlg::AddClientList(SOCKET s,sockaddr_in addr)
 		AddString(str);
 
 		str.Format(L"当前连接数：%d",m_vNode.size());
-		SetDlgItemText(IDC_STA,str);
+		SetDlgItemText(IDC_STA,str);*/
 		ResumeThread(hThread);
 	}
 	return true;
@@ -783,6 +780,14 @@ void CPayServerDlg::DoRun(string strData,Json::Value& js,Node* pnode)
 				bRet = theApp.m_dbData->SaveOtherPay(nProID,vec);
 			}
 			break;
+		case SOCK_CMD_SET_OTHERALLBOOKPAY:
+			{
+				CString strPay;
+				int nProID = root[CMD_PROMSG[EM_PROMSG_ID]].asInt();
+				strPay = root[CMD_PROMSG[EM_PROMSG_PAY]].asCString();
+				bRet=theApp.m_dbData->SaveOtherAllBookPay(nProID,strPay);
+			}
+			break;
 		case SOCK_CMD_GET_DETAILS:
 			{
 				CString strBookID;
@@ -820,7 +825,8 @@ void CPayServerDlg::DoRun(string strData,Json::Value& js,Node* pnode)
 			break;
 		case SOCK_CMD_GET_MPAY:
 			{
-				bRet=theApp.m_dbData->_GetMouthPay(js,root);
+				DWORD time=0;
+				bRet=theApp.m_dbData->_GetMouthPay(js,root,time);
 			}
 			break;
 		case SOCK_CMD_DEL_DAYPAY:
@@ -1077,7 +1083,11 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 		{
 			waitTime+=2000;
 			if (waitTime>3*2000)//3*m_HeardTime的时间没有接收到任何消息,则关闭会话
+			{
+				str.Format(L"%d 断开：超时",pnode->nThreadID);
+				g_PaySerDlg->AddString(str);
 				break;
+			}
 			else
 				continue;
 		}
@@ -1112,20 +1122,34 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 				{
 					if (bOnePack)
 					{
-						str.Format(L"报文头错误,%s 强制关闭连接！revLen=%d NumberOfBytesRecvd=%d",pnode->strUser,revLen,NumberOfBytesRecvd);
+						str.Format(L"%d 断开：报文头错误,revLen=%d NumberOfBytesRecvd=%d",pnode->nThreadID,revLen,NumberOfBytesRecvd);
 						g_PaySerDlg->AddString(str);
 					}
 					break;
 				}
 				else if (revLen<5)//报文头还没接收完
-				{
-					bOnePack = true;
+				{	
 					Buffers.buf+=NumberOfBytesRecvd;
 					Buffers.len = 5-revLen;//数据+0x03
 					continue;
 				}
 				else
 				{
+					if (!bOnePack)
+					{
+						WaitForSingleObject(g_PaySerDlg->m_mutex, INFINITE);
+						g_PaySerDlg->m_vNode.push_back(pnode);
+						ReleaseMutex(g_PaySerDlg->m_mutex); 
+
+						CString str;
+						str.Format(L"%d 连入",pnode->nThreadID);
+						g_PaySerDlg->AddString(str);
+
+						str.Format(L"当前连接数：%d",g_PaySerDlg->m_vNode.size());
+						g_PaySerDlg->m_NowSta.SetWindowTextW(str);
+						bOnePack = true;
+					}
+
 					char LenBuff[4] = {0};
 					memcpy(LenBuff,szRequest+1,4);
 
@@ -1137,7 +1161,7 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 
 					if (dataLen+6>maxlen)
 					{
-						str.Format(L"接收报文长度：%d,已超出最大接收长度,服务将强制断开该连接！",dataLen);
+						str.Format(L"%d 断开：接收报文长度：%d,已超出最大接收长度",pnode->nThreadID,dataLen);
 						g_PaySerDlg->AddString(str);
 						break;
 					}
@@ -1155,14 +1179,14 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 						WSAResetEvent(Event);
 						if (szRequest[revLen-1] != MSG_END)
 						{
-							str.Format(L"报文尾错误，服务将强制断开该连接！byte：%d",szRequest[revLen-1]);
+							str.Format(L"%d 断开：报文尾错误 byte：%d",pnode->nThreadID,szRequest[revLen-1]);
 							g_PaySerDlg->AddString(str);
 							break;
 						}
 					}
 					else
 					{
-						str.Format(L"实际接收数据长度：%d 大于定义长度：%d",revLen,5+dataLen+1);
+						str.Format(L"%d 断开：实际接收数据长度：%d 大于定义长度：%d",pnode->nThreadID,revLen,5+dataLen+1);
 						g_PaySerDlg->AddString(str);
 						break;
 					}
@@ -1187,7 +1211,11 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 			if (NetWorkEvent.iErrorCode[FD_CLOSE_BIT] != 0)
 				continue;
 			else
+			{
+				str.Format(L"%d 关闭连接",pnode->nThreadID);
+				g_PaySerDlg->AddString(str);
 				break;//退出
+			}
 		}
 	}//while
 
@@ -1197,6 +1225,7 @@ UINT WINAPI ClientThread(LPVOID lpParam)
 	}
 
 	//删除节点,关闭socket
+	closesocket(pnode->s);
 	g_PaySerDlg->DeleteClient(pnode);
 	WSACloseEvent(Event);
 	return 0;

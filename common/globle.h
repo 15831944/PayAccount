@@ -255,10 +255,13 @@ public:
 	CString strName;
 	PRO_NUM_TYPE pn_type;
 	PRO_STAFF_TYPE ps_type;
+	int nAllBook;//单价是否适用全书
+	CString strPay;
 
 	PROJECT_STU()
 	{
 		ndex = 0;
+		nAllBook = 0;
 		pn_type = PRO_NUM_TYPE_MAX;
 		ps_type = PRO_STAFF_TYPE_MAX;
 	}
@@ -308,6 +311,7 @@ struct STU_ZHEYE_PAY
 
 };
 
+void Log(char* fmt, ...);
 class CGloble
 {
 public:
@@ -330,7 +334,11 @@ public:
 	int GetDays(int year,int month);
 	CString ReturnBeginTime(EM_DATE_TYPE type);
 	int GetFirstAsciiValue(CString strName);
+	string GetLogFileName();
+	string GetAppDataPath();
 public:
+	string m_LogRootPath;
+	string m_LogPath;
 	string m_LocalIP;//本地IP
 	int    m_TcpPort;//本机TCP/IP服务端口
 	CString m_strName;//名称

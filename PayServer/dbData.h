@@ -83,6 +83,7 @@ public:
 
 	//保存和获取其它项目单价列表
 	bool SaveOtherPay(int proID, vector<OTHER_PRO_PAY> vec);
+	bool SaveOtherAllBookPay(int proID,CString strPay);
 	bool _GetOtherPay(Json::Value& root,int proID);
 	//删除其它项目单价
 	bool DelOtherPay(CString strIDs);
@@ -102,7 +103,7 @@ public:
 	bool _GetDayPayList(Json::Value& js,Json::Value root);
 
 	//月核算
-	bool _GetMouthPay(Json::Value& js,Json::Value root);
+	bool _GetMouthPay(Json::Value& js,Json::Value root,DWORD& time);
 
 	//明细
 	bool _GetDetails(Json::Value& root,vector<PROJECT_STU> vProIDs,CString strBookID);

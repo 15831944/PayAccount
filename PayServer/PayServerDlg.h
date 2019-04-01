@@ -90,4 +90,5 @@ public:
 	afx_msg void OnBnClickedBtnHide();
 	CButton m_ckRun;
 	afx_msg void OnBnClickedCkStartrun();
+	CStatic m_NowSta;
 };

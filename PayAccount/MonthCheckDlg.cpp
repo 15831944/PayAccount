@@ -132,6 +132,9 @@ void CMonthCheckDlg::GetStaff(Json::Value root)
 
 void CMonthCheckDlg::GetMonthPay(Json::Value root)
 {
+	Json::FastWriter writer;  
+	string strData = writer.write(root);
+
 	vector<MONTH_PAY_STAFF> vStaffs;
 	if (root.isMember(CMD_RetType[EM_CMD_RETYPE_VALUE]))
 	{

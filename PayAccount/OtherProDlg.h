@@ -33,8 +33,9 @@ public:
 	void SetListCtrlValue();
 	void SendToGetProject();
 	void SendToGetBook();
-	void SendToGetOtherPay();
+	void SendToGetOtherPay(int nID);
 	void SendToSetOtherPay(int proID, vector<OTHER_PRO_PAY> vec);
+	void SendToSetOtherAllBookPay(int proID,CString strPay);
 	void GetProject(Json::Value root);
 	void GetBook(Json::Value root);
 	void GetOtherPay(Json::Value root);
@@ -50,4 +51,6 @@ public:
 	CEditSet m_edit;
 	afx_msg void OnEnKillfocusEdit1();
 	afx_msg void OnNMClickList1(NMHDR *pNMHDR, LRESULT *pResult);
+	CEditSet m_payEdit;
+	afx_msg void OnBnClickedCheck();
 };

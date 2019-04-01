@@ -367,7 +367,25 @@ void CDayCheckDlg::GetProject(Json::Value root)
 		stu.pn_type=(PRO_NUM_TYPE)one[CMD_PROMSG[EM_PROMSG_NUM_TYPE]].asInt();
 		stu.ps_type=(PRO_STAFF_TYPE)one[CMD_PROMSG[EM_PROMSG_BWRITE]].asInt();
 		stu.ndex=one[CMD_PROMSG[EM_PROMSG_NDEX]].asInt();
-		m_vProjects.push_back(stu);
+		//按ndex从小到大排列
+		if(m_vProjects.size() == 0)
+			m_vProjects.push_back(stu);
+		else
+		{
+			bool bInset=false;
+			vector <PROJECT_STU>::iterator it;
+			for ( it = m_vProjects.begin( ) ; it != m_vProjects.end( ) ; it++ )
+			{
+				if (stu.ndex<(*it).ndex)
+				{
+					bInset = true;
+					m_vProjects.insert(it,stu);
+					break;
+				}
+			}
+			if(!bInset)
+				m_vProjects.push_back(stu);
+		}
 	}
 }
 
